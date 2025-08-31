@@ -227,18 +227,58 @@
     document.getElementById("tabSales").onclick = () => setActive("sales");
     document.getElementById("tabTeam").onclick = () => setActive("team");
 
-    let salesData = null, loyaltyRows = [], loyaltyCfg = null, teamData = null, currentCategory = "__ALL__";
-    let chartMode = "both";
+let salesData = null, loyaltyRows = [], loyaltyCfg = null, teamData = null, currentCategory = "__ALL__";
+let chartMode = "both";
 
-    Promise.all([
-      fetch('sales_crm_sku_data.json').then(r=>r.json()).catch(()=>null),
-      fetch('loyalty_signups.json').then(r=>r.json()).catch(()=>[]),
-      fetch('loyalty_config.json').then(r=>r.json()).catch(()=>null),
-      fetch('team_metrics.json').then(r=>r.json()).catch(()=>null),
-    ]).then(([s,l,c,t]) => {
-      salesData = s; loyaltyRows = Array.isArray(l) ? l : []; loyaltyCfg = c; teamData = t;
-      renderSales(); renderTeam();
-    }).catch(() => { alert("Error loading data files."); });
+// Cache-buster to avoid serving stale JSON from GitHub Pages
+const cacheBust = '?v=' + Date.now();
+
+// Display errors inline in the UI so users understand what's wrong
+function showError(msg) {
+  console.error(msg);
+  const anchor = document.querySelector('#chartTop20') || document.body;
+  const div = document.createElement('div');
+  div.style.background = '#fee2e2';
+  div.style.color = '#991b1b';
+  div.style.padding = '10px';
+  div.style.border = '1px solid #ef4444';
+  div.style.borderRadius = '8px';
+  div.style.margin = '10px 0';
+  div.textContent = 'Data error: ' + msg;
+  anchor.parentNode.insertBefore(div, anchor);
+}
+
+// Robust JSON loader with fallback values
+function getJSON(url, fallback) {
+  return fetch(url + cacheBust, {cache:'no-store'})
+    .then(r => {
+      if (!r.ok) throw new Error(url + ' → ' + r.status + ' ' + r.statusText);
+      return r.json();
+    })
+    .catch(err => {
+      // Show error but return fallback so other datasets may still render
+      showError(err.message);
+      return fallback;
+    });
+}
+
+// Load all datasets with sensible defaults; render only after all fetches settle
+Promise.all([
+  getJSON('sales_crm_sku_data.json', null),
+  getJSON('loyalty_signups.json', []),
+  getJSON('loyalty_config.json', null),
+  getJSON('team_metrics.json', null)
+]).then(([s,l,c,t]) => {
+  salesData = s || {};
+  loyaltyRows = Array.isArray(l) ? l : [];
+  loyaltyCfg = c || { threshold: 10 };
+  teamData = t || null;
+  if (typeof renderSales === 'function') renderSales();
+  if (typeof renderTeam === 'function') renderTeam();
+});
+
+// Catch unexpected errors globally
+window.addEventListener('error', e => showError(e.message));
 
     function renderSales(){
       if(!salesData) return;
