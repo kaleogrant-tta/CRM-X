@@ -407,7 +407,7 @@
       "units": 1.0,
       "revenue": 0.0,
       "profit": -14.44,
-      "margin_pct": -Infinity,
+      "margin_pct": null,
       "pct_total": null
     }
   ],
@@ -628,7 +628,7 @@
       "units": 1.0,
       "revenue": 0.0,
       "profit": -14.44,
-      "margin_pct": -Infinity
+      "margin_pct": null
     },
     {
       "product": "Flintts Mints Lemon",
@@ -1504,7 +1504,7 @@
       "units": 1.0,
       "revenue": 0.0,
       "profit": -14.44,
-      "margin_pct": -Infinity
+      "margin_pct": null
     },
     {
       "product": "Laundry Day Tanjun Pipe Grey",
