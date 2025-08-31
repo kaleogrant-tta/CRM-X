@@ -1,124 +1,397 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sales CRM</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React + Recharts for charts (UMD) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+  <style>
+    :root{--cream:#faf6f0;--coral:#ff6f61;--mint:#74d4b4;--ink:#1f2937}
+    body{background:var(--cream);color:var(--ink)}
+    .card{background:#fff;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+    .hover-glow:hover{box-shadow:0 10px 30px rgba(116,212,180,.35)}
+    .btn-tab{padding:10px 16px;border-radius:9999px;background:#fff;border:1px solid #e5e7eb}
+    .btn-tab.active{border-color:var(--mint);color:#065f46;box-shadow:0 0 0 3px rgba(116,212,180,.25) inset}
+    .kpi{display:flex;flex-direction:column;gap:6px}
+    .kpi .label{font-size:12px;color:#6b7280}
+    .kpi .value{font-size:20px;font-weight:700}
+    .scroll-x{overflow-x:auto}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 12px;border-bottom:1px solid #f1f5f9;white-space:nowrap}
+    th{text-align:left;font-weight:600}
+    .no-data{color:#9ca3af;font-style:italic}
+    .tag-mint{color:var(--mint)} .tag-coral{color:var(--coral)}
+    .chip{display:inline-block;padding:2px 8px;border-radius:9999px;background:#f3f4f6;font-size:12px}
+  </style>
 </head>
-<body class="bg-[#FAF6F0] text-gray-800">
-  <div class="max-w-7xl mx-auto p-4">
-    <header class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">Sales CRM</h1>
-      <div class="space-x-2">
-        <button id="tabSales" class="px-4 py-2 rounded border bg-white">Sales</button>
-        <button id="tabTeam" class="px-4 py-2 rounded border bg-white">Team</button>
+<body class="min-h-screen">
+  <div class="max-w-7xl mx-auto p-4 md:p-6">
+    <header class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl md:text-3xl font-bold">Sales CRM</h1>
+      <div class="flex gap-2">
+        <button id="tabSales" class="btn-tab active">Sales</button>
+        <button id="tabTeam" class="btn-tab">Team</button>
       </div>
     </header>
 
-    <section id="viewSales" class="space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Total Revenue</div><div id="kTotalRev" class="font-bold text-lg">$0</div></div>
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Total Units</div><div id="kTotalUnits" class="font-bold text-lg">0</div></div>
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Top 20 SKU Share</div><div id="kTop20" class="font-bold text-lg">0%</div></div>
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Prev 7d Revenue</div><div id="kPrevRev" class="font-bold text-lg">$0</div></div>
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Prev 7d Units</div><div id="kPrevUnits" class="font-bold text-lg">0</div></div>
+    <!-- Sales View -->
+    <section id="viewSales" class="space-y-6">
+      <!-- KPIs -->
+      <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <div class="card p-4 hover-glow kpi"><span class="label">Total Revenue</span><span id="kTotalRev" class="value">$0</span></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Total Units</span><span id="kTotalUnits" class="value">0</span></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Total Profit</span><span id="kTotalProfit" class="value">$0</span></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Top 20 SKU Share</span><span id="kTop20" class="value">0%</span></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Prev 7d Revenue</span><span id="kPrevRev" class="value">$0</span></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Prev 7d Units</span><span id="kPrevUnits" class="value">0</span></div>
       </div>
 
-      <div class="p-4 bg-white rounded shadow">
-        <div class="text-sm text-gray-600">Category</div>
-        <select id="categoryFilter" class="border px-3 py-2 rounded"><option>All</option></select>
-        <div class="text-xs text-gray-500 mt-2">Period: 2025-08-11 → 2025-08-31</div>
+      <!-- Category Filter -->
+      <div class="card p-4 hover-glow flex items-center gap-4">
+        <label class="text-sm text-gray-600">Category</label>
+        <select id="categoryFilter" class="border rounded px-3 py-2"><option value="__ALL__">All</option></select>
+        <span id="periodChip" class="chip">Period</span>
       </div>
 
-      <div class="p-4 bg-white rounded shadow">
-        <div class="font-semibold mb-2">Summary</div>
-        <ul id="ulSummary" class="list-disc pl-6 text-sm"></ul>
+      <!-- Revenue vs Profit (Top 20 SKUs) with toggle -->
+      <div class="card p-4 hover-glow">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-semibold">Revenue vs Profit — Top 20 SKUs</h2>
+          <div class="flex items-center gap-2 text-sm">
+            <label for="chartMode" class="text-gray-500">Show</label>
+            <select id="chartMode" class="border rounded px-2 py-1">
+              <option value="both" selected>Revenue + Profit</option>
+              <option value="revenue">Revenue only</option>
+              <option value="profit">Profit only</option>
+            </select>
+          </div>
+        </div>
+        <div id="chartTop20" class="w-full" style="height:600px;"></div>
       </div>
 
-      <div class="p-4 bg-white rounded shadow">
-        <div class="font-semibold mb-2">Tables</div>
-        <div class="text-sm text-gray-500">SKU-level exports were not provided, so Movers, Sellers, Sell-Through, and Category Mix tables are empty by design. Upload SKU-level sales to enable them.</div>
+      <!-- Movers (likely empty) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-4 hover-glow">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="font-semibold">Top Growers <span class="tag-mint">▲</span></h2>
+            <span class="text-xs text-gray-500">W3 vs avg(W1,W2)</span>
+          </div>
+          <div class="scroll-x"><table id="tblMoversUp"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>W1</th><th>W2</th><th>W3</th><th>Growth</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+        <div class="card p-4 hover-glow">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="font-semibold">Top Shrinkers <span class="tag-coral">▼</span></h2>
+            <span class="text-xs text-gray-500">W3 vs avg(W1,W2)</span>
+          </div>
+          <div class="scroll-x"><table id="tblMoversDown"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>W1</th><th>W2</th><th>W3</th><th>Growth</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Sellers (Revenue) + Profit Leaderboards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Top Sellers (Revenue)</h2>
+          <div class="scroll-x"><table id="tblTopRev"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th><th>% of Total</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Bottom Sellers (Revenue)</h2>
+          <div class="scroll-x"><table id="tblBottomRev"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th><th>% of Total</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Profit leaderboards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Top by Profit</h2>
+          <div class="scroll-x"><table id="tblTopProfit"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Bottom by Profit</h2>
+          <div class="scroll-x"><table id="tblBottomProfit"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Sell-Through -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Sell-Through — Top</h2>
+          <div class="scroll-x"><table id="tblSTop"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>Units Sold</th><th>Received</th><th>Sell-Through</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Sell-Through — Bottom</h2>
+          <div class="scroll-x"><table id="tblSBot"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>Units Sold</th><th>Received</th><th>Sell-Through</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Most & Least Units (with profit) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Most Sold (Units)</h2>
+          <div class="scroll-x"><table id="tblMostUnits"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Least Sold (Units)</h2>
+          <div class="scroll-x"><table id="tblLeastUnits"><thead>
+            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Category Mix (Revenue + Profit) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Category Mix (Revenue)</h2>
+          <div class="scroll-x"><table id="tblCatMixRev"><thead>
+            <tr><th>Category</th><th>Revenue</th><th>Units</th><th>% of Revenue</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+        <div class="card p-4 hover-glow">
+          <h2 class="font-semibold mb-2">Category Mix (Profit)</h2>
+          <div class="scroll-x"><table id="tblCatMixProfit"><thead>
+            <tr><th>Category</th><th>Profit</th><th>Units</th><th>% of Profit</th></tr>
+          </thead><tbody></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- Loyalty -->
+      <div class="card p-4 hover-glow">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-semibold">Loyalty — Frequent Flyers</h2>
+          <span class="text-xs text-gray-500">Action disabled (mailto in config)</span>
+        </div>
+        <div class="scroll-x"><table id="tblLoyalty"><thead>
+          <tr><th>Budtender</th><th>Store</th><th>Count</th><th>Progress</th><th>Action</th></tr>
+        </thead><tbody></tbody></table></div>
+      </div>
+
+      <!-- Summary -->
+      <div class="card p-4 hover-glow">
+        <h2 class="font-semibold mb-2">Summary & Insights</h2>
+        <ul id="ulSummary" class="list-disc pl-6 space-y-1 text-sm"></ul>
       </div>
     </section>
 
-    <section id="viewTeam" class="space-y-4 hidden">
+    <!-- Team View -->
+    <section id="viewTeam" class="space-y-6 hidden">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Total Revenue</div><div id="tTotalRev" class="font-bold text-lg">$0</div></div>
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Total Units</div><div id="tTotalUnits" class="font-bold text-lg">0</div></div>
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Top Rep (Revenue)</div><div id="tTopRepRev" class="font-bold text-lg">—</div></div>
-        <div class="p-4 bg-white rounded shadow"><div class="text-xs text-gray-500">Top Rep (TWE)</div><div id="tTopRepTWE" class="font-bold text-lg">—</div></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Total Revenue</span><span id="tTotalRev" class="value">$0</span></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Total Units</span><span id="tTotalUnits" class="value">0</span></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Top Rep (Revenue)</span><span id="tTopRepRev" class="value">—</span></div>
+        <div class="card p-4 hover-glow kpi"><span class="label">Top Rep (TWE)</span><span id="tTopRepTWE" class="value">—</span></div>
       </div>
-
-      <div class="p-4 bg-white rounded shadow">
-        <div class="font-semibold mb-2">Sales Team CRM Prototype (Jul 1 – Aug 31, 2025)</div>
-        <div class="overflow-x-auto">
-          <table id="tblTeam" class="min-w-full">
-            <thead><tr>
-              <th class="text-left p-2">Name</th><th class="text-left p-2">Revenue</th><th class="text-left p-2">Units</th>
-              <th class="text-left p-2">Avg Ticket</th><th class="text-left p-2">% of Sales</th><th class="text-left p-2">Hours</th><th class="text-left p-2">TWE</th>
-            </tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+      <div class="card p-4 hover-glow">
+        <h2 class="font-semibold mb-2">Sales Team CRM Prototype (Jul 1 – Aug 31, 2025)</h2>
+        <div class="scroll-x"><table id="tblTeam"><thead>
+          <tr><th>Name</th><th>Revenue</th><th>Units</th><th>Avg Ticket</th><th>% of Sales</th><th>Hours</th><th>TWE</th></tr>
+        </thead><tbody></tbody></table></div>
         <div id="teamNotes" class="text-xs text-gray-500 mt-2"></div>
       </div>
     </section>
   </div>
 
   <script>
-    const fmtCurrency = n => isFinite(n) ? (n<0? "-$":"$")+Math.abs(n).toLocaleString(undefined, {maximumFractionDigits:0}) : "—";
+    const fmtCurrency = n => isFinite(n) ? (n<0? "-$":"$")+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}) : "—";
     const fmtInt = n => isFinite(n) ? Number(n).toLocaleString() : "—";
     const fmtPct = n => isFinite(n) ? (n*100).toFixed(1)+"%" : "—";
     const el = id => document.getElementById(id);
 
     function setActive(tab){
-      el("viewSales").classList.toggle("hidden", tab!=="sales");
-      el("viewTeam").classList.toggle("hidden", tab!=="team");
+      document.getElementById("tabSales").classList.toggle("active", tab==="sales");
+      document.getElementById("tabTeam").classList.toggle("active", tab==="team");
+      document.getElementById("viewSales").classList.toggle("hidden", tab!=="sales");
+      document.getElementById("viewTeam").classList.toggle("hidden", tab!=="team");
     }
     document.getElementById("tabSales").onclick = ()=>setActive("sales");
     document.getElementById("tabTeam").onclick = ()=>setActive("team");
 
+    let salesData=null, loyaltyRows=[], loyaltyCfg=null, teamData=null, currentCategory="__ALL__";
+    let chartMode="both";
+
     Promise.all([
       fetch('sales_crm_sku_data.json').then(r=>r.json()).catch(()=>null),
-      fetch('team_metrics.json').then(r=>r.json()).catch(()=>null)
-    ]).then(([s,t])=>{
-      if(s){
-        el("kTotalRev").textContent = fmtCurrency(s.kpis.total_revenue||0);
-        el("kTotalUnits").textContent = fmtInt(s.kpis.total_units||0);
-        el("kTop20").textContent = fmtPct(s.kpis.top20_sku_share_pct||0);
-        el("kPrevRev").textContent = fmtCurrency(s.kpis.prev_week_revenue||0);
-        el("kPrevUnits").textContent = fmtInt(s.kpis.prev_week_units||0);
-        const ul = el("ulSummary");
-        ul.innerHTML = "";
-        const li = txt => { const li=document.createElement("li"); li.textContent=txt; ul.appendChild(li); };
-        li(`Prev 7d totals: Revenue ${(s.kpis.prev_week_revenue||0).toLocaleString()}, Units ${(s.kpis.prev_week_units||0).toLocaleString()}`);
-        if(s.data_notes && s.data_notes.note) li(s.data_notes.note);
-      }
-      if(t){
-        el("tTotalRev").textContent = fmtCurrency(t.kpis.total_revenue||0);
-        el("tTotalUnits").textContent = fmtInt(t.kpis.total_units||0);
-        const trr = t.kpis.top_rep_revenue||{name:"—",revenue:0};
-        const trt = t.kpis.top_rep_twe||{name:"—",twe:0};
-        el("tTopRepRev").textContent = `${trr.name} (${fmtCurrency(trr.revenue)})`;
-        el("tTopRepTWE").textContent = `${trt.name} (${isFinite(trt.twe)? t.kpis.top_rep_twe.twe.toFixed(3): "—"})`;
+      fetch('loyalty_signups.json').then(r=>r.json()).catch(()=>[]),
+      fetch('loyalty_config.json').then(r=>r.json()).catch(()=>null),
+      fetch('team_metrics.json').then(r=>r.json()).catch(()=>null),
+    ]).then(([s,l,c,t])=>{
+      salesData=s; loyaltyRows=Array.isArray(l)?l:[]; loyaltyCfg=c; teamData=t;
+      renderSales(); renderTeam();
+    }).catch(()=>{ alert("Error loading data files."); });
 
-        const tbody = el("tblTeam").querySelector("tbody");
-        tbody.innerHTML = "";
-        for(const r of (t.reps||[])){
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td class="p-2">${r.name}</td>
-                          <td class="p-2">${fmtCurrency(r.revenue)}</td>
-                          <td class="p-2">${fmtInt(r.units)}</td>
-                          <td class="p-2">${(r.avg_ticket||0).toFixed(2)}</td>
-                          <td class="p-2">${fmtPct(r.share_sales_pct||0)}</td>
-                          <td class="p-2">${(r.hours||0).toFixed(1)}</td>
-                          <td class="p-2">${isFinite(r.twe)? r.twe.toFixed(3): "—"}</td>`;
-          tbody.appendChild(tr);
-        }
-        el("teamNotes").textContent = (t.notes||[]).map(x=>"- "+x).join("\n");
+    function renderSales(){
+      if(!salesData) return;
+      const k=salesData.kpis||{};
+      el("kTotalRev").textContent = fmtCurrency(k.total_revenue||0);
+      el("kTotalUnits").textContent = fmtInt(k.total_units||0);
+      el("kTotalProfit").textContent = fmtCurrency(k.total_profit||0);
+      el("kTop20").textContent = fmtPct(k.top20_sku_share_pct||0);
+      el("kPrevRev").textContent = fmtCurrency(k.prev_week_revenue||0);
+      el("kPrevUnits").textContent = fmtInt(k.prev_week_units||0);
+      el("periodChip").textContent = `Period: ${salesData.data_notes?.period_start||""} → ${salesData.data_notes?.period_end||""}`;
+
+      // Category list (revenue mix categories)
+      const sel = document.getElementById("categoryFilter");
+      const cats = (salesData.category_mix||[]).map(r=>r.category).filter(Boolean);
+      [...new Set(cats)].sort().forEach(c=>{
+        const opt=document.createElement("option"); opt.value=c; opt.textContent=c; sel.appendChild(opt);
+      });
+      sel.onchange = ()=>{
+        currentCategory = sel.value;
+        drawTables(); drawSummary(); buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
+      };
+
+      // initial draw
+      drawTables();
+      drawSummary();
+      buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
+
+      // mode toggle
+      const modeSel = document.getElementById("chartMode");
+      if (modeSel) {
+        modeSel.value = chartMode;
+        modeSel.onchange = () => {
+          chartMode = modeSel.value;
+          buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
+        };
       }
-    }).catch(e=>alert("Error loading data"));
+    }
+
+    function passCat(r){ return currentCategory==="__ALL__" ? true : (r.category||"")===currentCategory; }
+
+    function drawTableRows(tbody, rows, cols){
+      tbody.innerHTML=""; let any=false;
+      for(const r of (rows||[])){
+        if("category" in r && !passCat(r)) continue;
+        const tr=document.createElement("tr");
+        cols.forEach(c=>{
+          const td=document.createElement("td"); let v=r[c];
+          if(c==="revenue"||c==="profit") v=fmtCurrency(v);
+          if(c==="units"||c==="units_received") v=fmtInt(v);
+          if(c==="pct_total"||c==="margin_pct") v=(v==null)?"—":fmtPct(v);
+          if(c==="sell_through"||c==="W3_vs_W1") v=(v==null)?"—":(v*100).toFixed(1)+"%";
+          td.textContent=v; tr.appendChild(td);
+        });
+        tbody.appendChild(tr); any=true;
+      }
+      if(!any){ const tr=document.createElement("tr"); const td=document.createElement("td");
+        td.colSpan=cols.length; td.className="no-data"; td.textContent="No data"; tr.appendChild(td); tbody.appendChild(tr); }
+    }
+
+    function drawTables(){
+      drawTableRows(document.querySelector("#tblMoversUp tbody"), salesData.sku_movers_up, ["product","vendor","W1","W2","W3","W3_vs_W1"]);
+      drawTableRows(document.querySelector("#tblMoversDown tbody"), salesData.sku_movers_down, ["product","vendor","W1","W2","W3","W3_vs_W1"]);
+      drawTableRows(document.querySelector("#tblTopRev tbody"), salesData.sku_top_revenue, ["product","vendor","category","units","revenue","profit","margin_pct","pct_total"]);
+      drawTableRows(document.querySelector("#tblBottomRev tbody"), salesData.sku_bottom_revenue, ["product","vendor","category","units","revenue","profit","margin_pct","pct_total"]);
+      drawTableRows(document.querySelector("#tblTopProfit tbody"), salesData.sku_top_profit, ["product","vendor","category","units","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblBottomProfit tbody"), salesData.sku_bottom_profit, ["product","vendor","category","units","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblSTop tbody"), salesData.sku_sellthrough_top, ["product","vendor","units","units_received","sell_through","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblSBot tbody"), salesData.sku_sellthrough_bottom, ["product","vendor","units","units_received","sell_through","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblMostUnits tbody"), salesData.sku_most_units, ["product","vendor","category","units","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblLeastUnits tbody"), salesData.sku_least_units, ["product","vendor","category","units","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblCatMixRev tbody"), salesData.category_mix, ["category","revenue","units","percentage"]);
+      drawTableRows(document.querySelector("#tblCatMixProfit tbody"), salesData.category_mix_profit, ["category","profit","units","percentage"]);
+
+      // Loyalty
+      const threshold = (loyaltyCfg && loyaltyCfg.threshold) ? loyaltyCfg.threshold : 10;
+      const byBud = {};
+      (loyaltyRows||[]).forEach(r=>{
+        const b=r.budtender||"Unknown"; const s=r.store||"—";
+        byBud[b] = byBud[b] || {store:s,count:0}; byBud[b].count += 1;
+      });
+      const rows = Object.entries(byBud).map(([b,v])=>({budtender:b,store:v.store,count:v.count,progress:Math.min(1,v.count/threshold)}))
+        .sort((a,b)=>b.count-a.count);
+      const tb=document.querySelector("#tblLoyalty tbody"); tb.innerHTML="";
+      if(rows.length===0){ const tr=document.createElement("tr"); const td=document.createElement("td");
+        td.colSpan=5; td.className="no-data"; td.textContent="No data"; tr.appendChild(td); tb.appendChild(tr);
+      } else {
+        rows.forEach(r=>{
+          const tr=document.createElement("tr");
+          tr.innerHTML = `<td>${r.budtender}</td><td>${r.store}</td><td>${fmtInt(r.count)}</td><td>${(r.progress*100).toFixed(0)}%</td>
+                          <td><button class="px-2 py-1 rounded bg-gray-200 text-gray-500 cursor-not-allowed" disabled>Redeem</button></td>`;
+          tb.appendChild(tr);
+        });
+      }
+    }
+
+    // ---- Chart helpers (Recharts UMD) ----
+    function currencyFmt(n){ return fmtCurrency(n); }
+
+    function getTop20ChartRows() {
+      if (!salesData || !Array.isArray(salesData.sku_top_revenue)) return [];
+      return salesData.sku_top_revenue
+        .filter(r => currentCategory === "__ALL__" ? true : (r.category || "") === currentCategory)
+        .slice(0, 20)
+        .map(r => ({
+          label: `${r.product}`.slice(0, 80),
+          Revenue: Number(r.revenue || 0),
+          Profit: Number(r.profit || 0)
+        }));
+    }
+
+    function buildTop20Chart(data, mountId, mode="both") {
+      const { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } = Recharts;
+      const root = document.getElementById(mountId);
+      if (!root) return;
+
+      const series = [];
+      if (mode === "both" || mode === "revenue") series.push({ key: "Revenue" });
+      if (mode === "both" || mode === "profit")  series.push({ key: "Profit" });
+
+      const e = React.createElement;
+      const chart = e(ResponsiveContainer, { width: '100%', height: 600 },
+        e(BarChart, { data, layout: "vertical", margin: { top: 10, right: 30, left: 120, bottom: 10 } },
+          e(CartesianGrid, { strokeDasharray: "3 3" }),
+          e(XAxis, { type: "number" }),
+          e(YAxis, { dataKey: "label", type: "category", width: 260 }),
+          e(Tooltip, { formatter: (v, n) => (n === "Revenue" || n === "Profit") ? currencyFmt(v) : v }),
+          (series.length > 1 ? e(Legend, {}) : null),
+          ...series.map(s => e(Bar, { key: s.key, dataKey: s.key, barSize: 14 }))
+        )
+      );
+      ReactDOM.render(chart, root);
+    }
+
+    // Team
+    function renderTeam(){
+      if(!teamData){ document.getElementById("teamNotes").textContent="Error loading metrics"; return; }
+      document.getElementById("tTotalRev").textContent = fmtCurrency(teamData.kpis.total_revenue||0);
+      document.getElementById("tTotalUnits").textContent = fmtInt(teamData.kpis.total_units||0);
+      const trr=teamData.kpis.top_rep_revenue||{name:"—",revenue:0}, trt=teamData.kpis.top_rep_twe||{name:"—",twe:0};
+      document.getElementById("tTopRepRev").textContent = `${trr.name} (${fmtCurrency(trr.revenue)})`;
+      document.getElementById("tTopRepTWE").textContent = `${trt.name} (${isFinite(trt.twe)? trt.twe.toFixed(3): "—"})`;
+
+      const tb=document.querySelector("#tblTeam tbody"); tb.innerHTML="";
+      (teamData.reps||[]).forEach(r=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML = `<td>${r.name}</td><td>${fmtCurrency(r.revenue)}</td><td>${fmtInt(r.units)}</td>
+                        <td>${isFinite(r.avg_ticket)? r.avg_ticket.toFixed(2): "—"}</td>
+                        <td>${fmtPct(r.share_sales_pct)}</td><td>${isFinite(r.hours)? r.hours.toFixed(1): "—"}</td>
+                        <td>${isFinite(r.twe)? r.twe.toFixed(3): "—"}</td>`;
+        tb.appendChild(tr);
+      });
+      document.getElementById("teamNotes").textContent = (teamData.notes||[]).map(x=>"- "+x).join("\n");
+    }
   </script>
 </body>
 </html>
