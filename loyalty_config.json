@@ -2,5 +2,5 @@
   "threshold": 10,
   "email_to": "kaleo.grant@thetravelagency.co",
   "email_subject": "Redeem: Free Sample Eligible",
-  "email_from": "no-reply@thetravelagency.co"
+  "email_from": "no-reply@example.com"
 }

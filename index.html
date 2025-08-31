@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sales CRM</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React + Recharts for charts (UMD) -->
+  <!-- React and Recharts for charts -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
   <style>
     :root{--cream:#faf6f0;--coral:#ff6f61;--mint:#74d4b4;--ink:#1f2937}
-    body{background:var(--cream);color:var(--ink)}
+    body{background:var(--cream);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system}
     .card{background:#fff;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
     .hover-glow:hover{box-shadow:0 10px 30px rgba(116,212,180,.35)}
     .btn-tab{padding:10px 16px;border-radius:9999px;background:#fff;border:1px solid #e5e7eb}
@@ -57,7 +57,7 @@
         <span id="periodChip" class="chip">Period</span>
       </div>
 
-      <!-- Revenue vs Profit (Top 20 SKUs) with toggle -->
+      <!-- Revenue vs Profit Top20 Chart -->
       <div class="card p-4 hover-glow">
         <div class="flex items-center justify-between mb-2">
           <h2 class="font-semibold">Revenue vs Profit — Top 20 SKUs</h2>
@@ -73,7 +73,7 @@
         <div id="chartTop20" class="w-full" style="height:600px;"></div>
       </div>
 
-      <!-- Movers (likely empty) -->
+      <!-- Movers -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="card p-4 hover-glow">
           <div class="flex items-center justify-between mb-2">
@@ -95,7 +95,7 @@
         </div>
       </div>
 
-      <!-- Sellers (Revenue) + Profit Leaderboards -->
+      <!-- Sellers (Revenue) and Profit Leaderboards -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Top Sellers (Revenue)</h2>
@@ -111,7 +111,7 @@
         </div>
       </div>
 
-      <!-- Profit leaderboards -->
+      <!-- Profit Leaderboards -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Top by Profit</h2>
@@ -143,7 +143,7 @@
         </div>
       </div>
 
-      <!-- Most & Least Units (with profit) -->
+      <!-- Most & Least Units -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Most Sold (Units)</h2>
@@ -159,7 +159,7 @@
         </div>
       </div>
 
-      <!-- Category Mix (Revenue + Profit) -->
+      <!-- Category Mix (Revenue & Profit) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Category Mix (Revenue)</h2>
@@ -186,7 +186,7 @@
         </thead><tbody></tbody></table></div>
       </div>
 
-      <!-- Summary -->
+      <!-- Summary & Insights -->
       <div class="card p-4 hover-glow">
         <h2 class="font-semibold mb-2">Summary & Insights</h2>
         <ul id="ulSummary" class="list-disc pl-6 space-y-1 text-sm"></ul>
@@ -211,64 +211,63 @@
     </section>
   </div>
 
+  <!-- JavaScript for functionality -->
   <script>
-    const fmtCurrency = n => isFinite(n) ? (n<0? "-$":"$")+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}) : "—";
+    const fmtCurrency = n => isFinite(n) ? (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}) : "—";
     const fmtInt = n => isFinite(n) ? Number(n).toLocaleString() : "—";
-    const fmtPct = n => isFinite(n) ? (n*100).toFixed(1)+"%" : "—";
+    const fmtPct = n => isFinite(n) ? (n*100).toFixed(1) + "%" : "—";
     const el = id => document.getElementById(id);
 
     function setActive(tab){
-      document.getElementById("tabSales").classList.toggle("active", tab==="sales");
-      document.getElementById("tabTeam").classList.toggle("active", tab==="team");
-      document.getElementById("viewSales").classList.toggle("hidden", tab!=="sales");
-      document.getElementById("viewTeam").classList.toggle("hidden", tab!=="team");
+      document.getElementById("tabSales").classList.toggle("active", tab === "sales");
+      document.getElementById("tabTeam").classList.toggle("active", tab === "team");
+      document.getElementById("viewSales").classList.toggle("hidden", tab !== "sales");
+      document.getElementById("viewTeam").classList.toggle("hidden", tab !== "team");
     }
-    document.getElementById("tabSales").onclick = ()=>setActive("sales");
-    document.getElementById("tabTeam").onclick = ()=>setActive("team");
+    document.getElementById("tabSales").onclick = () => setActive("sales");
+    document.getElementById("tabTeam").onclick = () => setActive("team");
 
-    let salesData=null, loyaltyRows=[], loyaltyCfg=null, teamData=null, currentCategory="__ALL__";
-    let chartMode="both";
+    let salesData = null, loyaltyRows = [], loyaltyCfg = null, teamData = null, currentCategory = "__ALL__";
+    let chartMode = "both";
 
     Promise.all([
       fetch('sales_crm_sku_data.json').then(r=>r.json()).catch(()=>null),
       fetch('loyalty_signups.json').then(r=>r.json()).catch(()=>[]),
       fetch('loyalty_config.json').then(r=>r.json()).catch(()=>null),
       fetch('team_metrics.json').then(r=>r.json()).catch(()=>null),
-    ]).then(([s,l,c,t])=>{
-      salesData=s; loyaltyRows=Array.isArray(l)?l:[]; loyaltyCfg=c; teamData=t;
+    ]).then(([s,l,c,t]) => {
+      salesData = s; loyaltyRows = Array.isArray(l) ? l : []; loyaltyCfg = c; teamData = t;
       renderSales(); renderTeam();
-    }).catch(()=>{ alert("Error loading data files."); });
+    }).catch(() => { alert("Error loading data files."); });
 
     function renderSales(){
       if(!salesData) return;
-      const k=salesData.kpis||{};
-      el("kTotalRev").textContent = fmtCurrency(k.total_revenue||0);
-      el("kTotalUnits").textContent = fmtInt(k.total_units||0);
-      el("kTotalProfit").textContent = fmtCurrency(k.total_profit||0);
-      el("kTop20").textContent = fmtPct(k.top20_sku_share_pct||0);
-      el("kPrevRev").textContent = fmtCurrency(k.prev_week_revenue||0);
-      el("kPrevUnits").textContent = fmtInt(k.prev_week_units||0);
-      el("periodChip").textContent = `Period: ${salesData.data_notes?.period_start||""} → ${salesData.data_notes?.period_end||""}`;
-
-      // Category list (revenue mix categories)
+      const k = salesData.kpis || {};
+      el("kTotalRev").textContent = fmtCurrency(k.total_revenue || 0);
+      el("kTotalUnits").textContent = fmtInt(k.total_units || 0);
+      el("kTotalProfit").textContent = fmtCurrency(k.total_profit || 0);
+      el("kTop20").textContent = fmtPct(k.top20_sku_share_pct || 0);
+      el("kPrevRev").textContent = fmtCurrency(k.prev_week_revenue || 0);
+      el("kPrevUnits").textContent = fmtInt(k.prev_week_units || 0);
+      el("periodChip").textContent = `Period: ${salesData.data_notes?.period_start || ""} → ${salesData.data_notes?.period_end || ""}`;
+      // Category dropdown
       const sel = document.getElementById("categoryFilter");
-      const cats = (salesData.category_mix||[]).map(r=>r.category).filter(Boolean);
-      [...new Set(cats)].sort().forEach(c=>{
-        const opt=document.createElement("option"); opt.value=c; opt.textContent=c; sel.appendChild(opt);
-      });
-      sel.onchange = ()=>{
+      // populate categories once
+      if(sel.options.length === 1) {
+        const cats = (salesData.category_mix || []).map(r => r.category).filter(Boolean);
+        [...new Set(cats)].sort().forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c; opt.textContent = c; sel.appendChild(opt);
+        });
+      }
+      sel.onchange = () => {
         currentCategory = sel.value;
         drawTables(); drawSummary(); buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
       };
-
-      // initial draw
-      drawTables();
-      drawSummary();
-      buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
-
-      // mode toggle
+      drawTables(); drawSummary(); buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
+      // Chart mode toggle
       const modeSel = document.getElementById("chartMode");
-      if (modeSel) {
+      if(modeSel) {
         modeSel.value = chartMode;
         modeSel.onchange = () => {
           chartMode = modeSel.value;
@@ -277,25 +276,28 @@
       }
     }
 
-    function passCat(r){ return currentCategory==="__ALL__" ? true : (r.category||"")===currentCategory; }
+    function passCat(r){ return currentCategory === "__ALL__" ? true : (r.category || "") === currentCategory; }
 
     function drawTableRows(tbody, rows, cols){
-      tbody.innerHTML=""; let any=false;
-      for(const r of (rows||[])){
-        if("category" in r && !passCat(r)) continue;
-        const tr=document.createElement("tr");
-        cols.forEach(c=>{
-          const td=document.createElement("td"); let v=r[c];
-          if(c==="revenue"||c==="profit") v=fmtCurrency(v);
-          if(c==="units"||c==="units_received") v=fmtInt(v);
-          if(c==="pct_total"||c==="margin_pct") v=(v==null)?"—":fmtPct(v);
-          if(c==="sell_through"||c==="W3_vs_W1") v=(v==null)?"—":(v*100).toFixed(1)+"%";
-          td.textContent=v; tr.appendChild(td);
+      tbody.innerHTML = "";
+      let any = false;
+      for(const r of (rows || [])){
+        if('category' in r && !passCat(r)) continue;
+        const tr = document.createElement("tr");
+        cols.forEach(c => {
+          const td = document.createElement("td"); let v = r[c];
+          if(c === 'revenue' || c === 'profit') v = fmtCurrency(v);
+          if(c === 'units' || c === 'units_received') v = fmtInt(v);
+          if(c === 'pct_total' || c === 'margin_pct') v = (v == null) ? '—' : fmtPct(v);
+          if(c === 'sell_through' || c === 'W3_vs_W1') v = (v == null) ? '—' : (v*100).toFixed(1) + '%';
+          td.textContent = v; tr.appendChild(td);
         });
-        tbody.appendChild(tr); any=true;
+        tbody.appendChild(tr); any = true;
       }
-      if(!any){ const tr=document.createElement("tr"); const td=document.createElement("td");
-        td.colSpan=cols.length; td.className="no-data"; td.textContent="No data"; tr.appendChild(td); tbody.appendChild(tr); }
+      if(!any){
+        const tr = document.createElement("tr");
+        const td = document.createElement("td"); td.colSpan = cols.length; td.className = "no-data"; td.textContent = "No data"; tr.appendChild(td); tbody.appendChild(tr);
+      }
     }
 
     function drawTables(){
@@ -309,88 +311,84 @@
       drawTableRows(document.querySelector("#tblSBot tbody"), salesData.sku_sellthrough_bottom, ["product","vendor","units","units_received","sell_through","revenue","profit","margin_pct"]);
       drawTableRows(document.querySelector("#tblMostUnits tbody"), salesData.sku_most_units, ["product","vendor","category","units","revenue","profit","margin_pct"]);
       drawTableRows(document.querySelector("#tblLeastUnits tbody"), salesData.sku_least_units, ["product","vendor","category","units","revenue","profit","margin_pct"]);
+      // Category mix tables
       drawTableRows(document.querySelector("#tblCatMixRev tbody"), salesData.category_mix, ["category","revenue","units","percentage"]);
       drawTableRows(document.querySelector("#tblCatMixProfit tbody"), salesData.category_mix_profit, ["category","profit","units","percentage"]);
-
-      // Loyalty
+      // Loyalty table
       const threshold = (loyaltyCfg && loyaltyCfg.threshold) ? loyaltyCfg.threshold : 10;
       const byBud = {};
-      (loyaltyRows||[]).forEach(r=>{
-        const b=r.budtender||"Unknown"; const s=r.store||"—";
+      (loyaltyRows || []).forEach(r => {
+        const b = r.budtender || 'Unknown'; const s = r.store || '—';
         byBud[b] = byBud[b] || {store:s,count:0}; byBud[b].count += 1;
       });
-      const rows = Object.entries(byBud).map(([b,v])=>({budtender:b,store:v.store,count:v.count,progress:Math.min(1,v.count/threshold)}))
-        .sort((a,b)=>b.count-a.count);
-      const tb=document.querySelector("#tblLoyalty tbody"); tb.innerHTML="";
-      if(rows.length===0){ const tr=document.createElement("tr"); const td=document.createElement("td");
-        td.colSpan=5; td.className="no-data"; td.textContent="No data"; tr.appendChild(td); tb.appendChild(tr);
+      const rows = Object.entries(byBud).map(([b,v]) => ({budtender:b, store:v.store, count:v.count, progress: Math.min(1, v.count/threshold) })).sort((a,b) => b.count - a.count);
+      const tb = document.querySelector("#tblLoyalty tbody"); tb.innerHTML = "";
+      if(rows.length === 0){
+        const tr = document.createElement("tr"); const td = document.createElement("td"); td.colSpan = 5; td.className = "no-data"; td.textContent = "No data"; tr.appendChild(td); tb.appendChild(tr);
       } else {
-        rows.forEach(r=>{
-          const tr=document.createElement("tr");
-          tr.innerHTML = `<td>${r.budtender}</td><td>${r.store}</td><td>${fmtInt(r.count)}</td><td>${(r.progress*100).toFixed(0)}%</td>
-                          <td><button class="px-2 py-1 rounded bg-gray-200 text-gray-500 cursor-not-allowed" disabled>Redeem</button></td>`;
+        rows.forEach(r => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${r.budtender}</td><td>${r.store}</td><td>${fmtInt(r.count)}</td><td>${(r.progress*100).toFixed(0)}%</td><td><button class="px-2 py-1 rounded bg-gray-200 text-gray-500 cursor-not-allowed" disabled>Redeem</button></td>`;
           tb.appendChild(tr);
         });
       }
     }
 
-    // ---- Chart helpers (Recharts UMD) ----
-    function currencyFmt(n){ return fmtCurrency(n); }
-
-    function getTop20ChartRows() {
-      if (!salesData || !Array.isArray(salesData.sku_top_revenue)) return [];
-      return salesData.sku_top_revenue
-        .filter(r => currentCategory === "__ALL__" ? true : (r.category || "") === currentCategory)
-        .slice(0, 20)
-        .map(r => ({
-          label: `${r.product}`.slice(0, 80),
-          Revenue: Number(r.revenue || 0),
-          Profit: Number(r.profit || 0)
-        }));
+    function drawSummary(){
+      const ul = document.getElementById("ulSummary"); ul.innerHTML = "";
+      const prev = (salesData.category_mix_prev_week || []).slice().sort((a,b) => b.revenue - a.revenue);
+      const top3 = prev.slice(0,3), bottom3 = prev.slice(-3);
+      const prevRev = salesData.kpis?.prev_week_revenue || 0, prevUnits = salesData.kpis?.prev_week_units || 0;
+      const add = t => { const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); };
+      if(top3.length) add(`Top 3 categories (Prev 7d): ${top3.map(x => x.category + ' ' + (x.percentage*100).toFixed(1) + '%').join(', ')}`);
+      if(bottom3.length) add(`Bottom 3 categories (Prev 7d): ${bottom3.map(x => x.category + ' ' + (x.percentage*100).toFixed(1) + '%').join(', ')}`);
+      add(`Prev 7d totals: Revenue ${fmtCurrency(prevRev)}, Units ${fmtInt(prevUnits)}`);
     }
 
-    function buildTop20Chart(data, mountId, mode="both") {
-      const { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } = Recharts;
-      const root = document.getElementById(mountId);
-      if (!root) return;
-
-      const series = [];
-      if (mode === "both" || mode === "revenue") series.push({ key: "Revenue" });
-      if (mode === "both" || mode === "profit")  series.push({ key: "Profit" });
-
-      const e = React.createElement;
-      const chart = e(ResponsiveContainer, { width: '100%', height: 600 },
-        e(BarChart, { data, layout: "vertical", margin: { top: 10, right: 30, left: 120, bottom: 10 } },
-          e(CartesianGrid, { strokeDasharray: "3 3" }),
-          e(XAxis, { type: "number" }),
-          e(YAxis, { dataKey: "label", type: "category", width: 260 }),
-          e(Tooltip, { formatter: (v, n) => (n === "Revenue" || n === "Profit") ? currencyFmt(v) : v }),
-          (series.length > 1 ? e(Legend, {}) : null),
-          ...series.map(s => e(Bar, { key: s.key, dataKey: s.key, barSize: 14 }))
-        )
-      );
-      ReactDOM.render(chart, root);
-    }
-
-    // Team
     function renderTeam(){
-      if(!teamData){ document.getElementById("teamNotes").textContent="Error loading metrics"; return; }
-      document.getElementById("tTotalRev").textContent = fmtCurrency(teamData.kpis.total_revenue||0);
-      document.getElementById("tTotalUnits").textContent = fmtInt(teamData.kpis.total_units||0);
-      const trr=teamData.kpis.top_rep_revenue||{name:"—",revenue:0}, trt=teamData.kpis.top_rep_twe||{name:"—",twe:0};
+      if(!teamData){ document.getElementById("teamNotes").textContent = "Error loading metrics"; return; }
+      document.getElementById("tTotalRev").textContent = fmtCurrency(teamData.kpis.total_revenue || 0);
+      document.getElementById("tTotalUnits").textContent = fmtInt(teamData.kpis.total_units || 0);
+      const trr = teamData.kpis.top_rep_revenue || {name:'—', revenue:0};
+      const trt = teamData.kpis.top_rep_twe || {name:'—', twe:0};
       document.getElementById("tTopRepRev").textContent = `${trr.name} (${fmtCurrency(trr.revenue)})`;
-      document.getElementById("tTopRepTWE").textContent = `${trt.name} (${isFinite(trt.twe)? trt.twe.toFixed(3): "—"})`;
-
-      const tb=document.querySelector("#tblTeam tbody"); tb.innerHTML="";
-      (teamData.reps||[]).forEach(r=>{
-        const tr=document.createElement("tr");
-        tr.innerHTML = `<td>${r.name}</td><td>${fmtCurrency(r.revenue)}</td><td>${fmtInt(r.units)}</td>
-                        <td>${isFinite(r.avg_ticket)? r.avg_ticket.toFixed(2): "—"}</td>
-                        <td>${fmtPct(r.share_sales_pct)}</td><td>${isFinite(r.hours)? r.hours.toFixed(1): "—"}</td>
-                        <td>${isFinite(r.twe)? r.twe.toFixed(3): "—"}</td>`;
+      document.getElementById("tTopRepTWE").textContent = `${trt.name} (${isFinite(trt.twe) ? trt.twe.toFixed(3) : '—'})`;
+      const tb = document.querySelector("#tblTeam tbody"); tb.innerHTML = "";
+      (teamData.reps || []).forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${r.name}</td><td>${fmtCurrency(r.revenue)}</td><td>${fmtInt(r.units)}</td><td>${isFinite(r.avg_ticket) ? r.avg_ticket.toFixed(2) : '—'}</td><td>${fmtPct(r.share_sales_pct)}</td><td>${isFinite(r.hours) ? r.hours.toFixed(1) : '—'}</td><td>${isFinite(r.twe) ? r.twe.toFixed(3) : '—'}</td>`;
         tb.appendChild(tr);
       });
-      document.getElementById("teamNotes").textContent = (teamData.notes||[]).map(x=>"- "+x).join("\n");
+      document.getElementById("teamNotes").textContent = (teamData.notes || []).map(x => '- ' + x).join("\n");
+    }
+
+    // Chart helpers
+    function getTop20ChartRows(){
+      if(!salesData || !Array.isArray(salesData.sku_top_revenue)) return [];
+      return salesData.sku_top_revenue
+        .filter(r => currentCategory === "__ALL__" ? true : ((r.category || '') === currentCategory))
+        .slice(0,20)
+        .map(r => ({ label: `${r.product}`.slice(0,60), Revenue: Number(r.revenue || 0), Profit: Number(r.profit || 0) }));
+    }
+    const currencyFmt = n => isFinite(n) ? (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}) : "—";
+    function buildTop20Chart(data, mountId, mode){
+      const { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } = Recharts;
+      const root = document.getElementById(mountId);
+      if(!root) return;
+      const series = [];
+      if(mode === 'both' || mode === 'revenue') series.push({ key:'Revenue' });
+      if(mode === 'both' || mode === 'profit') series.push({ key:'Profit' });
+      const e = React.createElement;
+      const chart = e(ResponsiveContainer,{ width:'100%', height:600 },
+        e(BarChart,{ data, layout:'vertical', margin:{ top:10, right:30, left:120, bottom:10 } },
+          e(CartesianGrid,{ strokeDasharray:'3 3' }),
+          e(XAxis,{ type:'number' }),
+          e(YAxis,{ dataKey:'label', type:'category', width:220 }),
+          e(Tooltip,{ formatter:(v,n) => (n==='Revenue' || n==='Profit') ? currencyFmt(v) : v }),
+          (series.length > 1 ? e(Legend,{}) : null),
+          ...series.map(s => e(Bar,{ key:s.key, dataKey:s.key, barSize:14 }))
+        ));
+      ReactDOM.render(chart, root);
     }
   </script>
 </body>
