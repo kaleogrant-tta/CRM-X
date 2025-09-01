@@ -57,20 +57,12 @@
         <span id="periodChip" class="chip">Period</span>
       </div>
 
-      <!-- Revenue vs Profit Top20 Chart -->
+      <!-- Top 5 Profit Chart -->
       <div class="card p-4 hover-glow">
         <div class="flex items-center justify-between mb-2">
-          <h2 class="font-semibold">Revenue vs Profit — Top 20 SKUs</h2>
-          <div class="flex items-center gap-2 text-sm">
-            <label for="chartMode" class="text-gray-500">Show</label>
-            <select id="chartMode" class="border rounded px-2 py-1">
-              <option value="both" selected>Revenue + Profit</option>
-              <option value="revenue">Revenue only</option>
-              <option value="profit">Profit only</option>
-            </select>
-          </div>
+          <h2 class="font-semibold">Top 5 SKUs in Profit</h2>
         </div>
-        <div id="chartTop20" class="w-full" style="height:600px;"></div>
+        <div id="chartProfit5" class="w-full" style="height:600px;"></div>
       </div>
 
       <!-- Movers -->
@@ -228,7 +220,7 @@
     document.getElementById("tabTeam").onclick = () => setActive("team");
 
 let salesData = null, loyaltyRows = [], loyaltyCfg = null, teamData = null, currentCategory = "__ALL__";
-let chartMode = "both";
+// No chart mode needed for Top 5 Profit chart
 
 // Cache-buster to avoid serving stale JSON from GitHub Pages
 const cacheBust = '?v=' + Date.now();
@@ -236,7 +228,8 @@ const cacheBust = '?v=' + Date.now();
 // Display errors inline in the UI so users understand what's wrong
 function showError(msg) {
   console.error(msg);
-  const anchor = document.querySelector('#chartTop20') || document.body;
+  // Insert error banner before chartProfit5 if present; fallback to body
+  const anchor = document.querySelector('#chartProfit5') || document.body;
   const div = document.createElement('div');
   div.style.background = '#fee2e2';
   div.style.color = '#991b1b';
@@ -248,12 +241,37 @@ function showError(msg) {
   anchor.parentNode.insertBefore(div, anchor);
 }
 
-// Robust JSON loader with fallback values
+// -----------------------------------------------------------------------------
+// Robust JSON loader with sanitation and fallback values
+// sanitizeJson fixes a few common invalid patterns in GitHub‑served JSONs:
+//  - collapses ": - 1" (minus followed by space and number) into ": -1"
+//  - replaces Unicode minus signs with normal ASCII '-'
+//  - converts stray NaN tokens into null
+//  - converts lone minus (e.g., ": -," or ": -}") into zero
+function sanitizeJson(text) {
+  return text
+    // collapse minus followed by whitespace and digits (e.g., ": - 3" → ": -3")
+    .replace(/(:\s*)-\s+([0-9])/g, '$1-$2')
+    // replace various Unicode minus/dash characters with ASCII hyphen
+    .replace(/[\u2010-\u2015\u2212]/g, '-')
+    // convert literal NaN tokens to null
+    .replace(/\bNaN\b/g, 'null')
+    // convert lone minus (e.g., ": -," or ": -}") into zero
+    .replace(/(:\s*)-(\s*[,}])/g, '$10$2');
+}
+
 function getJSON(url, fallback) {
-  return fetch(url + cacheBust, {cache:'no-store'})
+  return fetch(url + cacheBust, { cache: 'no-store' })
     .then(r => {
       if (!r.ok) throw new Error(url + ' → ' + r.status + ' ' + r.statusText);
-      return r.json();
+      return r.text();
+    })
+    .then(txt => {
+      try {
+        return JSON.parse(sanitizeJson(txt));
+      } catch (e) {
+        throw new Error(url + ' → ' + e.message);
+      }
     })
     .catch(err => {
       // Show error but return fallback so other datasets may still render
@@ -302,18 +320,9 @@ window.addEventListener('error', e => showError(e.message));
       }
       sel.onchange = () => {
         currentCategory = sel.value;
-        drawTables(); drawSummary(); buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
+        drawTables(); drawSummary(); buildTopProfitChart(getTop5ProfitChartRows(), "chartProfit5");
       };
-      drawTables(); drawSummary(); buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
-      // Chart mode toggle
-      const modeSel = document.getElementById("chartMode");
-      if(modeSel) {
-        modeSel.value = chartMode;
-        modeSel.onchange = () => {
-          chartMode = modeSel.value;
-          buildTop20Chart(getTop20ChartRows(), "chartTop20", chartMode);
-        };
-      }
+      drawTables(); drawSummary(); buildTopProfitChart(getTop5ProfitChartRows(), "chartProfit5");
     }
 
     function passCat(r){ return currentCategory === "__ALL__" ? true : (r.category || "") === currentCategory; }
@@ -403,30 +412,28 @@ window.addEventListener('error', e => showError(e.message));
     }
 
     // Chart helpers
-    function getTop20ChartRows(){
-      if(!salesData || !Array.isArray(salesData.sku_top_revenue)) return [];
-      return salesData.sku_top_revenue
+    // Build data rows for Top 5 Profit chart. Returns top 5 SKUs by profit
+    function getTop5ProfitChartRows(){
+      if(!salesData || !Array.isArray(salesData.sku_top_profit)) return [];
+      return salesData.sku_top_profit
         .filter(r => currentCategory === "__ALL__" ? true : ((r.category || '') === currentCategory))
-        .slice(0,20)
-        .map(r => ({ label: `${r.product}`.slice(0,60), Revenue: Number(r.revenue || 0), Profit: Number(r.profit || 0) }));
+        .slice(0,5)
+        .map(r => ({ label: `${r.product}`.slice(0,60), Profit: Number(r.profit || 0) }));
     }
     const currencyFmt = n => isFinite(n) ? (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}) : "—";
-    function buildTop20Chart(data, mountId, mode){
+    // Build horizontal bar chart for Top 5 SKUs in Profit. Only renders Profit bars
+    function buildTopProfitChart(data, mountId){
       const { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } = Recharts;
       const root = document.getElementById(mountId);
       if(!root) return;
-      const series = [];
-      if(mode === 'both' || mode === 'revenue') series.push({ key:'Revenue' });
-      if(mode === 'both' || mode === 'profit') series.push({ key:'Profit' });
       const e = React.createElement;
       const chart = e(ResponsiveContainer,{ width:'100%', height:600 },
         e(BarChart,{ data, layout:'vertical', margin:{ top:10, right:30, left:120, bottom:10 } },
           e(CartesianGrid,{ strokeDasharray:'3 3' }),
           e(XAxis,{ type:'number' }),
           e(YAxis,{ dataKey:'label', type:'category', width:220 }),
-          e(Tooltip,{ formatter:(v,n) => (n==='Revenue' || n==='Profit') ? currencyFmt(v) : v }),
-          (series.length > 1 ? e(Legend,{}) : null),
-          ...series.map(s => e(Bar,{ key:s.key, dataKey:s.key, barSize:14 }))
+          e(Tooltip,{ formatter:(v) => currencyFmt(v) }),
+          e(Bar,{ dataKey:'Profit', barSize:14 })
         ));
       ReactDOM.render(chart, root);
     }
