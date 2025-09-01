@@ -300,23 +300,9 @@ window.addEventListener('error', e => showError(e.message));
       }
       sel.onchange = () => {
         currentCategory = sel.value;
-        drawTables();
-        drawSummary();
-        // Wrap chart rendering in a try/catch so errors don't block Team rendering
-        try {
-          buildTopProfitChart(getTop5ProfitChartRows(), "chartProfit5");
-        } catch (e) {
-          showError('Chart error: ' + e.message);
-        }
+        drawTables(); drawSummary(); buildTopProfitChart(getTop5ProfitChartRows(), "chartProfit5");
       };
-      // Initial draw of tables, summary and chart. Use try/catch to avoid breaking Team view
-      drawTables();
-      drawSummary();
-      try {
-        buildTopProfitChart(getTop5ProfitChartRows(), "chartProfit5");
-      } catch (e) {
-        showError('Chart error: ' + e.message);
-      }
+      drawTables(); drawSummary(); buildTopProfitChart(getTop5ProfitChartRows(), "chartProfit5");
     }
 
     function passCat(r){ return currentCategory === "__ALL__" ? true : (r.category || "") === currentCategory; }
