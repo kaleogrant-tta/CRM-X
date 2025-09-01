@@ -163,18 +163,31 @@
         <h2 class="font-semibold mb-2">Summary & Insights</h2>
         <ul id="ulSummary" class="list-disc pl-6 space-y-1 text-sm"></ul>
       </div>
-    </section>2
+    </section>
     <!-- Team View -->
-    <section id="viewTeam" class="space-y-6 hidden">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="card p-4 hover-glow kpi"><span class="label">Total Revenue</span><span id="tTotalRev" class="value">$0</span></div>
-        <div class="card p-4 hover-glow kpi"><span class="label">Total Units</span><span id="tTotalUnits" class="value">0</span></div>
-        <div class="card p-4 hover-glow kpi"><span class="label">Top Rep (Revenue)</span><span id="tTopRepRev" class="value">—</span></div>
-        <div class="card p-4 hover-glow kpi"><span class="label">Top Rep (TWE)</span><span id="tTopRepTWE" class="value">—</span></div>
-      </div>
+     <section id="viewTeam" class="space-y-6 hidden">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="card p-4 hover-glow kpi">
+      <span class="label">Top Rep (Revenue)</span>
+      <span id="tTopRepRev" class="value">—</span>
+    </div>
+    <div class="card p-4 hover-glow kpi">
+      <span class="label">Highest ATV</span>
+      <span id="tHighestATV" class="value">—</span>
+    </div>
+  </div>
       <div class="card p-4 hover-glow">
         <h2 class="font-semibold mb-2">Sales Team CRM Prototype (Jul 1 – Aug 31, 2025)</h2>
         <div class="scroll-x"><table id="tblTeam"><thead>
+          <div class="card p-4 hover-glow">
+  <h2 class="font-semibold mb-2">Sales Team CRM Prototype (Jul 1 – Aug 31, 2025)</h2>
+  <div class="scroll-x"><table id="tblTeam"><thead>
+    <tr><th>Name</th><th>Revenue</th><th>Orders</th><th>ATV</th></tr>
+  </thead><tbody></tbody></table></div>
+  <div id="teamNotes" class="text-xs text-gray-500 mt-2"></div>
+</div>
+</section>
+
           <tr><th>Name</th><th>Revenue</th><th>Units</th><th>Avg Ticket</th><th>% of Sales</th><th>Hours</th><th>TWE</th></tr>
         </thead><tbody></tbody></table></div>
         <div id="teamNotes" class="text-xs text-gray-500 mt-2"></div>
@@ -259,21 +272,25 @@ function getJSON(url, fallback) {
     });
 }
 
-// Load all datasets with sensible defaults; render only after all fetches settle
+<!-- Load all datasets with sensible defaults; render only after all fetches settle -->
+<script>
 Promise.all([
   getJSON('sales_crm_sku_data.json', null),
   getJSON('loyalty_signups.json', []),
   getJSON('loyalty_config.json', null),
-  getJSON('team_sales_kpis.json', null)
-  getJSON('team_sales_kpis.schema.json',) 
-]).then(([s,l,c,t]) => {
-  salesData = s || {};
+  getJSON('team_sales_kpis.json', null),
+  getJSON('team_sales_kpis.schema.json', null)
+]).then(([s, l, c, t, _schema]) => {
+  salesData  = s || {};
   loyaltyRows = Array.isArray(l) ? l : [];
-  loyaltyCfg = c || { threshold: 10 };
-  teamData = t || null;
+  loyaltyCfg  = c || { threshold: 10 };
+  teamData    = t || null;
+
   if (typeof renderSales === 'function') renderSales();
-  if (typeof renderTeam === 'function') renderTeam();
+  if (typeof renderTeam  === 'function') renderTeam();
 });
+</script>
+
 
 // Catch unexpected errors globally
 window.addEventListener('error', e => showError(e.message));
@@ -373,7 +390,73 @@ window.addEventListener('error', e => showError(e.message));
       add(`Prev 7d totals: Revenue ${fmtCurrency(prevRev)}, Units ${fmtInt(prevUnits)}`);
     }
 
-    function renderTeam(){
+function renderTeam(){
+  if (!teamData) {
+    document.getElementById("teamNotes").textContent = "Error loading metrics";
+    return;
+  }
+
+  const k = teamData.kpis || {};
+
+  // Top rep by revenue (from kpis or computed from reps)
+  let topRepRev = k.top_rep_revenue;
+  if (!topRepRev && Array.isArray(teamData.reps)) {
+    topRepRev = teamData.reps.reduce((best, r) =>
+      (r && isFinite(r.revenue) && (!best || r.revenue > best.revenue)) ? r : best, null);
+    if (topRepRev) topRepRev = { name: topRepRev.name || '—', revenue: Number(topRepRev.revenue || 0) };
+  }
+  document.getElementById("tTopRepRev").textContent =
+    topRepRev ? `${topRepRev.name} (${fmtCurrency(topRepRev.revenue)})` : '—';
+
+  // Highest ATV (from kpis or computed from reps)
+  let highestATV = k.highest_atv;
+  if (!highestATV && Array.isArray(teamData.reps)) {
+    const bestATV = teamData.reps.reduce((best, r) =>
+      (r && isFinite(r.avg_ticket) && (!best || r.avg_ticket > best.avg_ticket)) ? r : best, null);
+    if (bestATV) highestATV = { name: bestATV.name || '—', atv: Number(bestATV.avg_ticket || 0) };
+  }
+  const atvText = highestATV && isFinite(highestATV.atv) ? highestATV.atv.toFixed(2) : '—';
+  document.getElementById("tHighestATV").textContent =
+    highestATV ? `${highestATV.name} (${atvText})` : '—';
+
+  // Table
+  const tb = document.querySelector("#tblTeam tbody");
+  if (!tb) return;
+  tb.innerHTML = "";
+
+  // If you changed to the 4-column table (Name, Revenue, Orders, ATV):
+  if (document.querySelector("#tblTeam thead th:nth-child(4)")?.textContent === "ATV") {
+    (teamData.reps || []).forEach(r => {
+      const tr = document.createElement("tr");
+      const orders = isFinite(r.orders) ? r.orders : (isFinite(r.units) ? r.units : null); // fallback
+      const atv    = isFinite(r.avg_ticket) ? r.avg_ticket.toFixed(2) : '—';
+      tr.innerHTML = `<td>${r.name || '—'}</td>` +
+                     `<td>${fmtCurrency(r.revenue || 0)}</td>` +
+                     `<td>${orders != null ? fmtInt(orders) : '—'}</td>` +
+                     `<td>${atv}</td>`;
+      tb.appendChild(tr);
+    });
+  } else {
+    // keep your existing 7-column table behavior
+    (teamData.reps || []).forEach(r => {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        `<td>${r.name || '—'}</td>` +
+        `<td>${fmtCurrency(r.revenue || 0)}</td>` +
+        `<td>${fmtInt(r.units || 0)}</td>` +
+        `<td>${isFinite(r.avg_ticket) ? r.avg_ticket.toFixed(2) : '—'}</td>` +
+        `<td>${isFinite(r.share_sales_pct) ? (r.share_sales_pct*100).toFixed(1)+'%' : '—'}</td>` +
+        `<td>${isFinite(r.hours) ? r.hours.toFixed(1) : '—'}</td>` +
+        `<td>${isFinite(r.twe) ? r.twe.toFixed(3) : '—'}</td>`;
+      tb.appendChild(tr);
+    });
+  }
+
+  document.getElementById("teamNotes").textContent =
+    (teamData.notes || []).map(x => '- ' + x).join("\n");
+}
+</script>
+
       if(!teamData){ document.getElementById("teamNotes").textContent = "Error loading metrics"; return; }
       document.getElementById("tTotalRev").textContent = fmtCurrency(teamData.kpis.total_revenue || 0);
       document.getElementById("tTotalUnits").textContent = fmtInt(teamData.kpis.total_units || 0);
