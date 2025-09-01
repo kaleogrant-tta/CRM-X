@@ -1,233 +1,511 @@
 {
   "kpis": {
-    "total_revenue": 457333.83999999997,
-    "total_units": 12309,
+    "total_revenue": 4479759.76,
+    "total_units": 115516,
     "top_rep_revenue": {
-      "name": "Andrew",
-      "revenue": 99315.75
+      "name": "Diamond G",
+      "revenue": 285339.0
     },
     "top_rep_twe": {
-      "name": null,
-      "twe": null
+      "name": "Matthew F",
+      "twe": 0.0076525957313049705
     }
   },
   "reps": [
     {
-      "name": "Alex",
-      "revenue": 15.75,
+      "name": "Aaron S",
+      "revenue": 31852.75,
+      "units": 610,
+      "avg_ticket": 124.91274509803921,
+      "share_sales_pct": 0.00711037013288409,
+      "hours": 0.0,
+      "twe": null
+    },
+    {
+      "name": "Alex S",
+      "revenue": 239393.0,
+      "units": 6229,
+      "avg_ticket": 75.85329531051964,
+      "share_sales_pct": 0.05343880315581923,
+      "hours": 551.3,
+      "twe": 0.007352637977179549
+    },
+    {
+      "name": "Allen P",
+      "revenue": 14466.58,
+      "units": 253,
+      "avg_ticket": 1205.5483333333334,
+      "share_sales_pct": 0.0032293204937400483,
+      "hours": 618.96,
+      "twe": 0.006289747219573951
+    },
+    {
+      "name": "Amir C",
+      "revenue": 59024.26,
+      "units": 1622,
+      "avg_ticket": 70.01691577698695,
+      "share_sales_pct": 0.013175764586090216,
+      "hours": 580.98,
+      "twe": 0.001587879788153957
+    },
+    {
+      "name": "Andrew F",
+      "revenue": 11676.76,
+      "units": 312,
+      "avg_ticket": 72.52645962732919,
+      "share_sales_pct": 0.0026065594196060192,
+      "hours": 582.28,
+      "twe": 0.00032466257902090157
+    },
+    {
+      "name": "Angie L",
+      "revenue": 648.25,
+      "units": 18,
+      "avg_ticket": 72.02777777777777,
+      "share_sales_pct": 0.0001447064205960902,
+      "hours": 0.0,
+      "twe": null
+    },
+    {
+      "name": "Anthony B",
+      "revenue": 80164.01,
+      "units": 2453,
+      "avg_ticket": 66.30604631927213,
+      "share_sales_pct": 0.017894711836065065,
+      "hours": 613.38,
+      "twe": 0.0019344086730446988
+    },
+    {
+      "name": "Ariana W",
+      "revenue": 61648.12,
+      "units": 1867,
+      "avg_ticket": 68.7270011148272,
+      "share_sales_pct": 0.013761479030741597,
+      "hours": 651.3000000000001,
+      "twe": 0.0014521498306271285
+    },
+    {
+      "name": "Brandon J",
+      "revenue": 100607.75,
+      "units": 2673,
+      "avg_ticket": 76.97609028309105,
+      "share_sales_pct": 0.022458291379446653,
+      "hours": 296.36,
+      "twe": 0.005833282038157144
+    },
+    {
+      "name": "Bruce T",
+      "revenue": 59.29,
+      "units": 43,
+      "avg_ticket": 9.881666666666666,
+      "share_sales_pct": 1.3235084731418723e-05,
+      "hours": 632.62,
+      "twe": 2.0673499987507403e-07
+    },
+    {
+      "name": "Caroline Q",
+      "revenue": 1478.0,
+      "units": 35,
+      "avg_ticket": 98.53333333333333,
+      "share_sales_pct": 0.0003299284066965234,
+      "hours": 0.0,
+      "twe": null
+    },
+    {
+      "name": "Charlotte B",
+      "revenue": 32626.0,
+      "units": 651,
+      "avg_ticket": 104.23642172523962,
+      "share_sales_pct": 0.007282979835507965,
+      "hours": 0.0,
+      "twe": null
+    },
+    {
+      "name": "Christian M",
+      "revenue": 138024.0,
+      "units": 2812,
+      "avg_ticket": 126.62752293577982,
+      "share_sales_pct": 0.030810580788823375,
+      "hours": 0.0,
+      "twe": null
+    },
+    {
+      "name": "Colbi K",
+      "revenue": 95121.0,
+      "units": 2492,
+      "avg_ticket": 73.33924441017733,
+      "share_sales_pct": 0.021233504718119082,
+      "hours": 308.24,
+      "twe": 0.005052067195064848
+    },
+    {
+      "name": "Daniel S",
+      "revenue": 89677.36,
+      "units": 2778,
+      "avg_ticket": 67.0234379671151,
+      "share_sales_pct": 0.020018341340697254,
+      "hours": 678.1999999999999,
+      "twe": 0.0019783221159728076
+    },
+    {
+      "name": "Danielle G",
+      "revenue": 56.5,
       "units": 1,
-      "avg_ticket": 15.75,
-      "share_sales_pct": 3.443873735650089e-05,
+      "avg_ticket": 56.5,
+      "share_sales_pct": 1.2612283476558574e-05,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Amir",
-      "revenue": 11367.0,
-      "units": 324,
-      "avg_ticket": 75.27814569536424,
-      "share_sales_pct": 0.024854928732148927,
+      "name": "Diamond G",
+      "revenue": 285339.0,
+      "units": 5709,
+      "avg_ticket": 124.11439756415832,
+      "share_sales_pct": 0.0636951567242079,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Andrew",
-      "revenue": 99315.75,
-      "units": 2693,
-      "avg_ticket": 71.70812274368231,
-      "share_sales_pct": 0.21716247807072403,
-      "hours": 0.0,
-      "twe": null
+      "name": "Edwin D",
+      "revenue": 89204.11,
+      "units": 2659,
+      "avg_ticket": 66.07711851851852,
+      "share_sales_pct": 0.019912699514940062,
+      "hours": 602.66,
+      "twe": 0.0021832771477654743
     },
     {
-      "name": "Brandon",
-      "revenue": 5861.5,
-      "units": 161,
-      "avg_ticket": 66.60795454545455,
-      "share_sales_pct": 0.012816676762865395,
-      "hours": 0.0,
-      "twe": null
+      "name": "Gabriel R",
+      "revenue": 8431.5,
+      "units": 245,
+      "avg_ticket": 69.11065573770492,
+      "share_sales_pct": 0.0018821321793381172,
+      "hours": 353.76,
+      "twe": 0.0003676938859653237
     },
     {
-      "name": "Colbi",
-      "revenue": 197.75,
+      "name": "George A",
+      "revenue": 194879.01,
+      "units": 5114,
+      "avg_ticket": 77.33294047619049,
+      "share_sales_pct": 0.04350211181860342,
+      "hours": 657.42,
+      "twe": 0.005117194828050015
+    },
+    {
+      "name": "Jackson W",
+      "revenue": 29669.5,
+      "units": 804,
+      "avg_ticket": 76.46778350515464,
+      "share_sales_pct": 0.006623011408986807,
+      "hours": 538.08,
+      "twe": 0.0009412113488228001
+    },
+    {
+      "name": "Jalen J",
+      "revenue": 49176.5,
+      "units": 1215,
+      "avg_ticket": 86.4261862917399,
+      "share_sales_pct": 0.010977485989114738,
+      "hours": 309.58,
+      "twe": 0.0030646109216040927
+    },
+    {
+      "name": "Janice M",
+      "revenue": 49.5,
       "units": 1,
-      "avg_ticket": 197.75,
-      "share_sales_pct": 0.0004323974801427334,
+      "avg_ticket": 49.5,
+      "share_sales_pct": 1.1049699683002645e-05,
+      "hours": 27.46,
+      "twe": 1.9918431693686486e-05
+    },
+    {
+      "name": "Jean-Luc F",
+      "revenue": 215199.5,
+      "units": 5637,
+      "avg_ticket": 75.0870551290998,
+      "share_sales_pct": 0.04803817872590561,
+      "hours": 633.56,
+      "twe": 0.005693297200412942
+    },
+    {
+      "name": "Jeff M",
+      "revenue": 20212.49,
+      "units": 584,
+      "avg_ticket": 76.27354716981132,
+      "share_sales_pct": 0.0045119584716301845,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Edwin",
-      "revenue": 4167.5,
-      "units": 118,
-      "avg_ticket": 66.15079365079364,
-      "share_sales_pct": 0.009112599233855077,
+      "name": "Josiah A",
+      "revenue": 19498.5,
+      "units": 536,
+      "avg_ticket": 64.56456953642385,
+      "share_sales_pct": 0.004352577156950041,
+      "hours": 514.68,
+      "twe": 0.000546013582250235
+    },
+    {
+      "name": "Juan C",
+      "revenue": 73469.75,
+      "units": 1935,
+      "avg_ticket": 79.94532100108815,
+      "share_sales_pct": 0.016400377238086537,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Gabriel",
-      "revenue": 61310.0,
-      "units": 1598,
-      "avg_ticket": 74.40533980582525,
-      "share_sales_pct": 0.13405961824298854,
+      "name": "Jude C",
+      "revenue": 10664.78,
+      "units": 529,
+      "avg_ticket": 61.29183908045977,
+      "share_sales_pct": 0.002380658912834201,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "George",
-      "revenue": 1885.5,
-      "units": 49,
-      "avg_ticket": 110.91176470588235,
-      "share_sales_pct": 0.004122808843535392,
+      "name": "Kai J",
+      "revenue": 125334.75,
+      "units": 3647,
+      "avg_ticket": 67.13162828066417,
+      "share_sales_pct": 0.027978007017054864,
+      "hours": 457.94,
+      "twe": 0.004101430683283271
+    },
+    {
+      "name": "Kaleo G",
+      "revenue": 31889.13,
+      "units": 1158,
+      "avg_ticket": 91.63543103448276,
+      "share_sales_pct": 0.0071184911040854575,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Jackson",
-      "revenue": 45104.75,
-      "units": 1228,
-      "avg_ticket": 73.34105691056911,
-      "share_sales_pct": 0.09862543738289736,
+      "name": "Keith O",
+      "revenue": 161434.0,
+      "units": 4141,
+      "avg_ticket": 78.74829268292683,
+      "share_sales_pct": 0.03603630744698685,
+      "hours": 514.06,
+      "twe": 0.005520362770974704
+    },
+    {
+      "name": "Kevin Y",
+      "revenue": 45125.509999999995,
+      "units": 1002,
+      "avg_ticket": 1049.430465116279,
+      "share_sales_pct": 0.010073198657420861,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Josiah",
-      "revenue": 37295.25,
-      "units": 1082,
-      "avg_ticket": 77.37603734439834,
-      "share_sales_pct": 0.08154929012031999,
+      "name": "Lori W",
+      "revenue": 120689.0,
+      "units": 3223,
+      "avg_ticket": 70.61966062024575,
+      "share_sales_pct": 0.026940953637210226,
+      "hours": 609.68,
+      "twe": 0.0031205894939075607
+    },
+    {
+      "name": "Marco R",
+      "revenue": 104410.0,
+      "units": 2601,
+      "avg_ticket": 79.09848484848484,
+      "share_sales_pct": 0.0233070534121678,
+      "hours": 333.68,
+      "twe": 0.005524911925153386
+    },
+    {
+      "name": "Mark M",
+      "revenue": 16484.09,
+      "units": 723,
+      "avg_ticket": 84.1025,
+      "share_sales_pct": 0.0036796816979310517,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Kai",
-      "revenue": 1481.75,
-      "units": 47,
-      "avg_ticket": 52.919642857142854,
-      "share_sales_pct": 0.0032399745446346157,
+      "name": "Mason M",
+      "revenue": 25659.75,
+      "units": 621,
+      "avg_ticket": 78.47018348623853,
+      "share_sales_pct": 0.005727929928099538,
+      "hours": 574.12,
+      "twe": 0.0007828880938728624
+    },
+    {
+      "name": "Matthew F",
+      "revenue": 242959.25,
+      "units": 6524,
+      "avg_ticket": 71.6482601002654,
+      "share_sales_pct": 0.054234883792071927,
+      "hours": 507.78,
+      "twe": 0.0076525957313049705
+    },
+    {
+      "name": "Melvin T",
+      "revenue": 255912.25,
+      "units": 6956,
+      "avg_ticket": 71.90566170272548,
+      "share_sales_pct": 0.05712633348891906,
+      "hours": 556.86,
+      "twe": 0.007376552113944781
+    },
+    {
+      "name": "Michael W",
+      "revenue": 95954.75,
+      "units": 1827,
+      "avg_ticket": 128.2817513368984,
+      "share_sales_pct": 0.021419619609244402,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Kaleo",
-      "revenue": 2236.75,
-      "units": 54,
-      "avg_ticket": 72.15322580645162,
-      "share_sales_pct": 0.004890847351247833,
+      "name": "Michele P",
+      "revenue": 16799.5,
+      "units": 443,
+      "avg_ticket": 77.06192660550458,
+      "share_sales_pct": 0.0037500894914061196,
+      "hours": 674.2,
+      "twe": 0.0004286400491705909
+    },
+    {
+      "name": "Mikayla J",
+      "revenue": 17067.49,
+      "units": 550,
+      "avg_ticket": 66.6698828125,
+      "share_sales_pct": 0.0038099118958111276,
+      "hours": 320.68,
+      "twe": 0.0007920867519635699
+    },
+    {
+      "name": "Mike C",
+      "revenue": 0.0,
+      "units": 3,
+      "avg_ticket": 0.0,
+      "share_sales_pct": 0.0,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Keith",
-      "revenue": 1981.25,
-      "units": 55,
-      "avg_ticket": 79.25,
-      "share_sales_pct": 0.0043321745007979294,
+      "name": "Milton R",
+      "revenue": 117167.0,
+      "units": 2957,
+      "avg_ticket": 78.00732356857523,
+      "share_sales_pct": 0.02615475076279537,
+      "hours": 540.86,
+      "twe": 0.003772255492380317
+    },
+    {
+      "name": "Omari P",
+      "revenue": 39877.5,
+      "units": 1085,
+      "avg_ticket": 68.40051457975986,
+      "share_sales_pct": 0.008901705032503798,
+      "hours": 591.04,
+      "twe": 0.0010301861208386874
+    },
+    {
+      "name": "Precious Y",
+      "revenue": 260227.0,
+      "units": 6905,
+      "avg_ticket": 74.82087406555492,
+      "share_sales_pct": 0.058089498977954124,
+      "hours": 599.26,
+      "twe": 0.007252790253914305
+    },
+    {
+      "name": "Rajah C",
+      "revenue": 62842.75,
+      "units": 1621,
+      "avg_ticket": 77.10766871165644,
+      "share_sales_pct": 0.014028151813212413,
+      "hours": 591.14,
+      "twe": 0.0018298171036471994
+    },
+    {
+      "name": "Ramon L",
+      "revenue": 42687.0,
+      "units": 877,
+      "avg_ticket": 111.74607329842932,
+      "share_sales_pct": 0.00952885919936028,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Mason",
-      "revenue": 55477.0,
-      "units": 1501,
-      "avg_ticket": 90.50081566068515,
-      "share_sales_pct": 0.12130525919533967,
+      "name": "Rashae B",
+      "revenue": 89246.75,
+      "units": 2410,
+      "avg_ticket": 69.39871695178849,
+      "share_sales_pct": 0.01992221788250538,
+      "hours": 584.16,
+      "twe": 0.0023667768417554268
+    },
+    {
+      "name": "Ricky M",
+      "revenue": 124979.75,
+      "units": 2421,
+      "avg_ticket": 120.98717328170378,
+      "share_sales_pct": 0.027898761696095956,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Matthew",
-      "revenue": 1239.75,
-      "units": 34,
-      "avg_ticket": 77.484375,
-      "share_sales_pct": 0.002710820611918856,
+      "name": "Sadie W",
+      "revenue": 121869.75,
+      "units": 3213,
+      "avg_ticket": 73.81571774682011,
+      "share_sales_pct": 0.027204528039244676,
+      "hours": 419.92,
+      "twe": 0.004782153179606445
+    },
+    {
+      "name": "Sam F",
+      "revenue": 7292.25,
+      "units": 194,
+      "avg_ticket": 75.1778350515464,
+      "share_sales_pct": 0.0016278216669368896,
+      "hours": 564.72,
+      "twe": 0.00021670227505722264
+    },
+    {
+      "name": "Shannon W",
+      "revenue": 18536.75,
+      "units": 349,
+      "avg_ticket": 95.55025773195877,
+      "share_sales_pct": 0.004137889305028268,
       "hours": 0.0,
       "twe": null
     },
     {
-      "name": "Melvin",
-      "revenue": 2824.75,
-      "units": 78,
-      "avg_ticket": 65.69186046511628,
-      "share_sales_pct": 0.0061765602125571995,
-      "hours": 0.0,
-      "twe": null
+      "name": "Shaquan M",
+      "revenue": 134009.01,
+      "units": 3725,
+      "avg_ticket": 70.49395581273015,
+      "share_sales_pct": 0.0299143296023535,
+      "hours": 412.54,
+      "twe": 0.005111696875832048
     },
     {
-      "name": "Milton",
-      "revenue": 6857.0,
-      "units": 185,
-      "avg_ticket": 78.816091954023,
-      "share_sales_pct": 0.014993423622446133,
-      "hours": 0.0,
-      "twe": null
+      "name": "Sheree L",
+      "revenue": 139223.26,
+      "units": 3663,
+      "avg_ticket": 77.4322914349277,
+      "share_sales_pct": 0.031078287108860504,
+      "hours": 483.1,
+      "twe": 0.004981293696360263
     },
     {
-      "name": "Precious",
-      "revenue": 1965.75,
-      "units": 71,
-      "avg_ticket": 51.73026315789474,
-      "share_sales_pct": 0.004298282410066135,
-      "hours": 0.0,
-      "twe": null
-    },
-    {
-      "name": "Rajah",
-      "revenue": 54904.25,
-      "units": 1418,
-      "avg_ticket": 85.787890625,
-      "share_sales_pct": 0.1200528917781374,
-      "hours": 0.0,
-      "twe": null
-    },
-    {
-      "name": "Sadie",
-      "revenue": 2161.5,
-      "units": 68,
-      "avg_ticket": 72.05,
-      "share_sales_pct": 0.004726306717211217,
-      "hours": 0.0,
-      "twe": null
-    },
-    {
-      "name": "Sam",
-      "revenue": 52124.75,
-      "units": 1325,
-      "avg_ticket": 87.31113902847571,
-      "share_sales_pct": 0.11397527460465205,
-      "hours": 0.0,
-      "twe": null
-    },
-    {
-      "name": "Shaquan",
-      "revenue": 1342.5,
-      "units": 49,
-      "avg_ticket": 53.7,
-      "share_sales_pct": 0.002935492374673171,
-      "hours": 0.0,
-      "twe": null
-    },
-    {
-      "name": "Sheree",
-      "revenue": 1391.0,
-      "units": 36,
-      "avg_ticket": 81.82352941176471,
-      "share_sales_pct": 0.0030415418198662058,
-      "hours": 0.0,
-      "twe": null
-    },
-    {
-      "name": "blank",
-      "revenue": 4825.09,
-      "units": 133,
-      "avg_ticket": 76.58873015873016,
-      "share_sales_pct": 0.010550476649617706,
-      "hours": 0.0,
-      "twe": null
+      "name": "Taz L",
+      "revenue": 109763.75,
+      "units": 2860,
+      "avg_ticket": 73.32247828991316,
+      "share_sales_pct": 0.02450215098141781,
+      "hours": 370.84,
+      "twe": 0.004844564861911287
     }
-  ],
-  "notes": []
+  ]
 }
