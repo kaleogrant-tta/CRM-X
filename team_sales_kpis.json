@@ -1,0 +1,27 @@
+{
+  "module": "team_sales_kpis",
+  "version": "1.0.0",
+  "generated_at": "2025-09-01 12:00:00",
+  "period": {
+    "period_start": "2025-07-21",
+    "period_end": "2025-08-21",
+    "timezone": "America/New_York"
+  },
+  "kpis": {
+    "highest_atv": { "salesperson": "Michele P", "atv": 120.0 }
+  },
+  "tables": {
+    "revenue_per_rep": [
+      { "salesperson": "George A", "revenue": 7300.0, "orders": 73, "atv": 100.0 },
+      { "salesperson": "Michele P", "revenue": 6960.0, "orders": 58, "atv": 120.0 },
+      { "salesperson": "Keith O", "revenue": 5700.0, "orders": 57, "atv": 100.0 },
+      { "salesperson": "Milton R", "revenue": 1600.0, "orders": 16, "atv": 100.0 },
+      { "salesperson": "Precious Y", "revenue": 1600.0, "orders": 16, "atv": 100.0 },
+      { "salesperson": "Juan Carlos R", "revenue": 1500.0, "orders": 15, "atv": 100.0 },
+      { "salesperson": "Andrew F", "revenue": 1400.0, "orders": 14, "atv": 100.0 },
+      { "salesperson": "Bruce T", "revenue": 1200.0, "orders": 12, "atv": 100.0 },
+      { "salesperson": "Mason M", "revenue": 1200.0, "orders": 12, "atv": 100.0 },
+      { "salesperson": "Jean-Luc F", "revenue": 1200.0, "orders": 12, "atv": 100.0 }
+    ]
+  }
+}
