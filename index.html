@@ -65,27 +65,7 @@
         <div id="chartProfit5" class="w-full" style="height:600px;"></div>
       </div>
 
-      <!-- Movers -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="card p-4 hover-glow">
-          <div class="flex items-center justify-between mb-2">
-            <h2 class="font-semibold">Top Growers <span class="tag-mint">▲</span></h2>
-            <span class="text-xs text-gray-500">W3 vs avg(W1,W2)</span>
-          </div>
-          <div class="scroll-x"><table id="tblMoversUp"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>W1</th><th>W2</th><th>W3</th><th>Growth</th></tr>
-          </thead><tbody></tbody></table></div>
-        </div>
-        <div class="card p-4 hover-glow">
-          <div class="flex items-center justify-between mb-2">
-            <h2 class="font-semibold">Top Shrinkers <span class="tag-coral">▼</span></h2>
-            <span class="text-xs text-gray-500">W3 vs avg(W1,W2)</span>
-          </div>
-          <div class="scroll-x"><table id="tblMoversDown"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>W1</th><th>W2</th><th>W3</th><th>Growth</th></tr>
-          </thead><tbody></tbody></table></div>
-        </div>
-      </div>
+      <!-- Movers section removed -->
 
       <!-- Sellers (Revenue) and Profit Leaderboards -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -350,8 +330,7 @@ window.addEventListener('error', e => showError(e.message));
     }
 
     function drawTables(){
-      drawTableRows(document.querySelector("#tblMoversUp tbody"), salesData.sku_movers_up, ["product","vendor","W1","W2","W3","W3_vs_W1"]);
-      drawTableRows(document.querySelector("#tblMoversDown tbody"), salesData.sku_movers_down, ["product","vendor","W1","W2","W3","W3_vs_W1"]);
+      // Movers tables have been removed; skip drawing these tables
       drawTableRows(document.querySelector("#tblTopRev tbody"), salesData.sku_top_revenue, ["product","vendor","category","units","revenue","profit","margin_pct","pct_total"]);
       drawTableRows(document.querySelector("#tblBottomRev tbody"), salesData.sku_bottom_revenue, ["product","vendor","category","units","revenue","profit","margin_pct","pct_total"]);
       drawTableRows(document.querySelector("#tblTopProfit tbody"), salesData.sku_top_profit, ["product","vendor","category","units","revenue","profit","margin_pct"]);
