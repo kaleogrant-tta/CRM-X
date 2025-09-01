@@ -387,7 +387,7 @@
       "units": 3.0,
       "revenue": 0.03,
       "profit": -82.47,
-      "margin_pct": -2749.0,
+      "margin_pct": -1.0,
       "pct_total": null
     },
     {
@@ -655,7 +655,7 @@
       "units": 32.0,
       "revenue": 40.27,
       "profit": -52.53,
-      "margin_pct": -1.3044449962751428
+      "margin_pct": -1.0
     },
     {
       "product": "AP Pre Roll Multipack Witcher's Creek 2pk",
@@ -682,7 +682,7 @@
       "units": 34.0,
       "revenue": 40.29,
       "profit": -58.31,
-      "margin_pct": -1.4472573839662448
+      "margin_pct": -1.0
     },
     {
       "product": "Turn Disposable UP Live Resin Terp Slurp 1G",
@@ -700,7 +700,7 @@
       "units": 3.0,
       "revenue": 0.03,
       "profit": -82.47,
-      "margin_pct": -2749.0
+      "margin_pct": -1.0
     },
     {
       "product": "Chime & Chill AM Bath Salts: CBD : CBG",
@@ -709,7 +709,7 @@
       "units": 11.0,
       "revenue": 60.0,
       "profit": -105.0,
-      "margin_pct": -1.75
+      "margin_pct": -1.0
     },
     {
       "product": "Turn Disposable DOWN  Live Resin Papaya 1G",
@@ -763,7 +763,7 @@
       "units": 332.0,
       "revenue": 970.17,
       "profit": -1519.83,
-      "margin_pct": -1.566560499706237
+      "margin_pct": -1.0
     },
     {
       "product": "Lost Farm Gummies Dragon Fruit x Frose 10pk",
