@@ -265,7 +265,8 @@ Promise.all([
   getJSON('sales_crm_sku_data.json', null),
   getJSON('loyalty_signups.json', []),
   getJSON('loyalty_config.json', null),
-  getJSON('team_metrics.json', null)
+  getJSON('team_sales_kpis.json', null)
+  getJSON('team_sales_kpis.schema.json',) 
 ]).then(([s,l,c,t]) => {
   salesData = s || {};
   loyaltyRows = Array.isArray(l) ? l : [];
