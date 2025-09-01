@@ -72,13 +72,13 @@
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Top Sellers (Revenue)</h2>
           <div class="scroll-x"><table id="tblTopRev"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th><th>% of Total</th></tr>
+            <tr><th>Product</th><th>Category</th><th>Units</th><th>Profit</th><th>Margin</th></tr>
           </thead><tbody></tbody></table></div>
         </div>
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Bottom Sellers (Revenue)</h2>
           <div class="scroll-x"><table id="tblBottomRev"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th><th>% of Total</th></tr>
+            <tr><th>Product</th><th>Brand</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th><th>% of Total</th></tr>
           </thead><tbody></tbody></table></div>
         </div>
       </div>
@@ -88,13 +88,13 @@
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Top by Profit</h2>
           <div class="scroll-x"><table id="tblTopProfit"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+            <tr><th>Product</th><th>Brand</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
           </thead><tbody></tbody></table></div>
         </div>
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Bottom by Profit</h2>
           <div class="scroll-x"><table id="tblBottomProfit"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+            <tr><th>Product</th><th>Brand</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
           </thead><tbody></tbody></table></div>
         </div>
       </div>
@@ -104,13 +104,13 @@
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Sell-Through — Top</h2>
           <div class="scroll-x"><table id="tblSTop"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>Units Sold</th><th>Received</th><th>Sell-Through</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+            <tr><th>Product</th><th>Brand</th><th>Units Sold</th><th>Received</th><th>Sell-Through</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
           </thead><tbody></tbody></table></div>
         </div>
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Sell-Through — Bottom</h2>
           <div class="scroll-x"><table id="tblSBot"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>Units Sold</th><th>Received</th><th>Sell-Through</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+            <tr><th>Product</th><th>Brand</th><th>Units Sold</th><th>Received</th><th>Sell-Through</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
           </thead><tbody></tbody></table></div>
         </div>
       </div>
@@ -120,13 +120,13 @@
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Most Sold (Units)</h2>
           <div class="scroll-x"><table id="tblMostUnits"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+            <tr><th>Product</th><th>Brand</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
           </thead><tbody></tbody></table></div>
         </div>
         <div class="card p-4 hover-glow">
           <h2 class="font-semibold mb-2">Least Sold (Units)</h2>
           <div class="scroll-x"><table id="tblLeastUnits"><thead>
-            <tr><th>Product</th><th>Vendor</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
+            <tr><th>Product</th><th>Brand</th><th>Category</th><th>Units</th><th>Revenue</th><th>Profit</th><th>Margin</th></tr>
           </thead><tbody></tbody></table></div>
         </div>
       </div>
@@ -332,14 +332,14 @@ window.addEventListener('error', e => showError(e.message));
 
     function drawTables(){
       // Movers tables have been removed; skip drawing these tables
-      drawTableRows(document.querySelector("#tblTopRev tbody"), salesData.sku_top_revenue, ["product","vendor","category","units","revenue","profit","margin_pct","pct_total"]);
-      drawTableRows(document.querySelector("#tblBottomRev tbody"), salesData.sku_bottom_revenue, ["product","vendor","category","units","revenue","profit","margin_pct","pct_total"]);
-      drawTableRows(document.querySelector("#tblTopProfit tbody"), salesData.sku_top_profit, ["product","vendor","category","units","revenue","profit","margin_pct"]);
-      drawTableRows(document.querySelector("#tblBottomProfit tbody"), salesData.sku_bottom_profit, ["product","vendor","category","units","revenue","profit","margin_pct"]);
-      drawTableRows(document.querySelector("#tblSTop tbody"), salesData.sku_sellthrough_top, ["product","vendor","units","units_received","sell_through","revenue","profit","margin_pct"]);
-      drawTableRows(document.querySelector("#tblSBot tbody"), salesData.sku_sellthrough_bottom, ["product","vendor","units","units_received","sell_through","revenue","profit","margin_pct"]);
-      drawTableRows(document.querySelector("#tblMostUnits tbody"), salesData.sku_most_units, ["product","vendor","category","units","revenue","profit","margin_pct"]);
-      drawTableRows(document.querySelector("#tblLeastUnits tbody"), salesData.sku_least_units, ["product","vendor","category","units","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblTopRev tbody"), salesData.sku_top_revenue, ["product","Brand","category","units","revenue","profit","margin_pct","pct_total"]);
+      drawTableRows(document.querySelector("#tblBottomRev tbody"), salesData.sku_bottom_revenue, ["product","Brand","category","units","revenue","profit","margin_pct","pct_total"]);
+      drawTableRows(document.querySelector("#tblTopProfit tbody"), salesData.sku_top_profit, ["product","Brand","category","units","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblBottomProfit tbody"), salesData.sku_bottom_profit, ["product","Brand","category","units","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblSTop tbody"), salesData.sku_sellthrough_top, ["product","Brand","units","units_received","sell_through","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblSBot tbody"), salesData.sku_sellthrough_bottom, ["product","Brand","units","units_received","sell_through","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblMostUnits tbody"), salesData.sku_most_units, ["product","Brand","category","units","revenue","profit","margin_pct"]);
+      drawTableRows(document.querySelector("#tblLeastUnits tbody"), salesData.sku_least_units, ["product","Brand","category","units","revenue","profit","margin_pct"]);
       // Category mix tables
       drawTableRows(document.querySelector("#tblCatMixRev tbody"), salesData.category_mix, ["category","revenue","units","percentage"]);
       drawTableRows(document.querySelector("#tblCatMixProfit tbody"), salesData.category_mix_profit, ["category","profit","units","percentage"]);
