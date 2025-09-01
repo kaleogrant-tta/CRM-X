@@ -24,7 +24,6 @@
     th,td{padding:10px 12px;border-bottom:1px solid #f1f5f9;white-space:nowrap}
     th{text-align:left;font-weight:600}
     .no-data{color:#9ca3af;font-style:italic}
-    .tag-mint{color:var(--mint)} .tag-coral{color:var(--coral)}
     .chip{display:inline-block;padding:2px 8px;border-radius:9999px;background:#f3f4f6;font-size:12px}
   </style>
 </head>
@@ -64,8 +63,6 @@
         </div>
         <div id="chartProfit5" class="w-full" style="height:600px;"></div>
       </div>
-
-      <!-- Movers section removed -->
 
       <!-- Sellers (Revenue) and Profit Leaderboards -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -164,38 +161,36 @@
         <ul id="ulSummary" class="list-disc pl-6 space-y-1 text-sm"></ul>
       </div>
     </section>
+
     <!-- Team View -->
-     <section id="viewTeam" class="space-y-6 hidden">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="card p-4 hover-glow kpi">
-      <span class="label">Top Rep (Revenue)</span>
-      <span id="tTopRepRev" class="value">—</span>
-    </div>
-    <div class="card p-4 hover-glow kpi">
-      <span class="label">Highest ATV</span>
-      <span id="tHighestATV" class="value">—</span>
-    </div>
-  </div>
+    <section id="viewTeam" class="space-y-6 hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card p-4 hover-glow kpi">
+          <span class="label">Top Rep (Revenue)</span>
+          <span id="tTopRepRev" class="value">—</span>
+        </div>
+        <div class="card p-4 hover-glow kpi">
+          <span class="label">Highest ATV</span>
+          <span id="tHighestATV" class="value">—</span>
+        </div>
+      </div>
+
       <div class="card p-4 hover-glow">
         <h2 class="font-semibold mb-2">Sales Team CRM Prototype (Jul 1 – Aug 31, 2025)</h2>
-        <div class="scroll-x"><table id="tblTeam"><thead>
-          <div class="card p-4 hover-glow">
-  <h2 class="font-semibold mb-2">Sales Team CRM Prototype (Jul 1 – Aug 31, 2025)</h2>
-  <div class="scroll-x"><table id="tblTeam"><thead>
-    <tr><th>Name</th><th>Revenue</th><th>Orders</th><th>ATV</th></tr>
-  </thead><tbody></tbody></table></div>
-  <div id="teamNotes" class="text-xs text-gray-500 mt-2"></div>
-</div>
-</section>
-
-          <tr><th>Name</th><th>Revenue</th><th>Units</th><th>Avg Ticket</th><th>% of Sales</th><th>Hours</th><th>TWE</th></tr>
-        </thead><tbody></tbody></table></div>
+        <div class="scroll-x">
+          <table id="tblTeam">
+            <thead>
+              <tr><th>Name</th><th>Revenue</th><th>Orders</th><th>ATV</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
         <div id="teamNotes" class="text-xs text-gray-500 mt-2"></div>
       </div>
     </section>
   </div>
 
-  <!-- JavaScript for functionality -->
+  <!-- JavaScript -->
   <script>
     const fmtCurrency = n => isFinite(n) ? (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}) : "—";
     const fmtInt = n => isFinite(n) ? Number(n).toLocaleString() : "—";
@@ -211,90 +206,68 @@
     document.getElementById("tabSales").onclick = () => setActive("sales");
     document.getElementById("tabTeam").onclick = () => setActive("team");
 
-let salesData = null, loyaltyRows = [], loyaltyCfg = null, teamData = null, currentCategory = "__ALL__";
-// No chart mode needed for Top 5 Profit chart
+    let salesData = null, loyaltyRows = [], loyaltyCfg = null, teamData = null, currentCategory = "__ALL__";
 
-// Cache-buster to avoid serving stale JSON from GitHub Pages
-const cacheBust = '?v=' + Date.now();
+    // Cache-buster to avoid serving stale JSON from GitHub Pages
+    const cacheBust = '?v=' + Date.now();
 
-// Display errors inline in the UI so users understand what's wrong
-function showError(msg) {
-  console.error(msg);
-  // Insert error banner before chartProfit5 if present; fallback to body
-  const anchor = document.querySelector('#chartProfit5') || document.body;
-  const div = document.createElement('div');
-  div.style.background = '#fee2e2';
-  div.style.color = '#991b1b';
-  div.style.padding = '10px';
-  div.style.border = '1px solid #ef4444';
-  div.style.borderRadius = '8px';
-  div.style.margin = '10px 0';
-  div.textContent = 'Data error: ' + msg;
-  anchor.parentNode.insertBefore(div, anchor);
-}
+    // Display errors inline
+    function showError(msg) {
+      console.error(msg);
+      const anchor = document.querySelector('#chartProfit5') || document.body;
+      const div = document.createElement('div');
+      div.style.background = '#fee2e2';
+      div.style.color = '#991b1b';
+      div.style.padding = '10px';
+      div.style.border = '1px solid #ef4444';
+      div.style.borderRadius = '8px';
+      div.style.margin = '10px 0';
+      div.textContent = 'Data error: ' + msg;
+      anchor.parentNode.insertBefore(div, anchor);
+    }
 
-// -----------------------------------------------------------------------------
-// Robust JSON loader with sanitation and fallback values
-// sanitizeJson fixes a few common invalid patterns in GitHub‑served JSONs:
-//  - collapses ": - 1" (minus followed by space and number) into ": -1"
-//  - replaces Unicode minus signs with normal ASCII '-'
-//  - converts stray NaN tokens into null
-//  - converts lone minus (e.g., ": -," or ": -}") into zero
-function sanitizeJson(text) {
-  return text
-    // collapse minus followed by whitespace and digits (e.g., ": - 3" → ": -3")
-    .replace(/(:\s*)-\s+([0-9])/g, '$1-$2')
-    // replace various Unicode minus/dash characters with ASCII hyphen
-    .replace(/[\u2010-\u2015\u2212]/g, '-')
-    // convert literal NaN tokens to null
-    .replace(/\bNaN\b/g, 'null')
-    // convert lone minus (e.g., ": -," or ": -}") into zero
-    .replace(/(:\s*)-(\s*[,}])/g, '$10$2');
-}
+    // JSON loader with sanitation/fallbacks
+    function sanitizeJson(text) {
+      return text
+        .replace(/(:\s*)-\s+([0-9])/g, '$1-$2')   // ": - 3" -> ": -3"
+        .replace(/[\u2010-\u2015\u2212]/g, '-')   // unicode minus -> "-"
+        .replace(/\bNaN\b/g, 'null')              // NaN -> null
+        .replace(/(:\s*)-(\s*[,}])/g, '$10$2');   // lone minus -> 0
+    }
+    function getJSON(url, fallback) {
+      return fetch(url + cacheBust, { cache: 'no-store' })
+        .then(r => {
+          if (!r.ok) throw new Error(url + ' → ' + r.status + ' ' + r.statusText);
+          return r.text();
+        })
+        .then(txt => {
+          try { return JSON.parse(sanitizeJson(txt)); }
+          catch (e) { throw new Error(url + ' → ' + e.message); }
+        })
+        .catch(err => { showError(err.message); return fallback; });
+    }
 
-function getJSON(url, fallback) {
-  return fetch(url + cacheBust, { cache: 'no-store' })
-    .then(r => {
-      if (!r.ok) throw new Error(url + ' → ' + r.status + ' ' + r.statusText);
-      return r.text();
-    })
-    .then(txt => {
-      try {
-        return JSON.parse(sanitizeJson(txt));
-      } catch (e) {
-        throw new Error(url + ' → ' + e.message);
-      }
-    })
-    .catch(err => {
-      // Show error but return fallback so other datasets may still render
-      showError(err.message);
-      return fallback;
+    // Load datasets
+    Promise.all([
+      getJSON('sales_crm_sku_data.json', null),
+      getJSON('loyalty_signups.json', []),
+      getJSON('loyalty_config.json', null),
+      getJSON('team_sales_kpis.json', null),
+      getJSON('team_sales_kpis.schema.json', null)
+    ]).then(([s, l, c, t, _schema]) => {
+      salesData   = s || {};
+      loyaltyRows = Array.isArray(l) ? l : [];
+      loyaltyCfg  = c || { threshold: 10 };
+      teamData    = t || null;
+
+      if (typeof renderSales === 'function') renderSales();
+      if (typeof renderTeam  === 'function') renderTeam();
     });
-}
 
-<!-- Load all datasets with sensible defaults; render only after all fetches settle -->
-<script>
-Promise.all([
-  getJSON('sales_crm_sku_data.json', null),
-  getJSON('loyalty_signups.json', []),
-  getJSON('loyalty_config.json', null),
-  getJSON('team_sales_kpis.json', null),
-  getJSON('team_sales_kpis.schema.json', null)
-]).then(([s, l, c, t, _schema]) => {
-  salesData  = s || {};
-  loyaltyRows = Array.isArray(l) ? l : [];
-  loyaltyCfg  = c || { threshold: 10 };
-  teamData    = t || null;
+    // Catch unexpected errors globally
+    window.addEventListener('error', e => showError(e.message));
 
-  if (typeof renderSales === 'function') renderSales();
-  if (typeof renderTeam  === 'function') renderTeam();
-});
-</script>
-
-
-// Catch unexpected errors globally
-window.addEventListener('error', e => showError(e.message));
-
+    // ------------------ SALES ------------------
     function renderSales(){
       if(!salesData) return;
       const k = salesData.kpis || {};
@@ -305,9 +278,8 @@ window.addEventListener('error', e => showError(e.message));
       el("kPrevRev").textContent = fmtCurrency(k.prev_week_revenue || 0);
       el("kPrevUnits").textContent = fmtInt(k.prev_week_units || 0);
       el("periodChip").textContent = `Period: ${salesData.data_notes?.period_start || ""} → ${salesData.data_notes?.period_end || ""}`;
-      // Category dropdown
+
       const sel = document.getElementById("categoryFilter");
-      // populate categories once
       if(sel.options.length === 1) {
         const cats = (salesData.category_mix || []).map(r => r.category).filter(Boolean);
         [...new Set(cats)].sort().forEach(c => {
@@ -342,12 +314,12 @@ window.addEventListener('error', e => showError(e.message));
       }
       if(!any){
         const tr = document.createElement("tr");
-        const td = document.createElement("td"); td.colSpan = cols.length; td.className = "no-data"; td.textContent = "No data"; tr.appendChild(td); tbody.appendChild(tr);
+        const td = document.createElement("td"); td.colSpan = cols.length; td.className = "no-data"; td.textContent = "No data";
+        tr.appendChild(td); tbody.appendChild(tr);
       }
     }
 
     function drawTables(){
-      // Movers tables have been removed; skip drawing these tables
       drawTableRows(document.querySelector("#tblTopRev tbody"), salesData.sku_top_revenue, ["product","Brand","category","units","revenue","profit","margin_pct","pct_total"]);
       drawTableRows(document.querySelector("#tblBottomRev tbody"), salesData.sku_bottom_revenue, ["product","Brand","category","units","revenue","profit","margin_pct","pct_total"]);
       drawTableRows(document.querySelector("#tblTopProfit tbody"), salesData.sku_top_profit, ["product","Brand","category","units","revenue","profit","margin_pct"]);
@@ -356,10 +328,10 @@ window.addEventListener('error', e => showError(e.message));
       drawTableRows(document.querySelector("#tblSBot tbody"), salesData.sku_sellthrough_bottom, ["product","Brand","units","units_received","sell_through","revenue","profit","margin_pct"]);
       drawTableRows(document.querySelector("#tblMostUnits tbody"), salesData.sku_most_units, ["product","Brand","category","units","revenue","profit","margin_pct"]);
       drawTableRows(document.querySelector("#tblLeastUnits tbody"), salesData.sku_least_units, ["product","Brand","category","units","revenue","profit","margin_pct"]);
-      // Category mix tables
       drawTableRows(document.querySelector("#tblCatMixRev tbody"), salesData.category_mix, ["category","revenue","units","percentage"]);
       drawTableRows(document.querySelector("#tblCatMixProfit tbody"), salesData.category_mix_profit, ["category","profit","units","percentage"]);
-      // Loyalty table
+
+      // Loyalty
       const threshold = (loyaltyCfg && loyaltyCfg.threshold) ? loyaltyCfg.threshold : 10;
       const byBud = {};
       (loyaltyRows || []).forEach(r => {
@@ -390,91 +362,58 @@ window.addEventListener('error', e => showError(e.message));
       add(`Prev 7d totals: Revenue ${fmtCurrency(prevRev)}, Units ${fmtInt(prevUnits)}`);
     }
 
-function renderTeam(){
-  if (!teamData) {
-    document.getElementById("teamNotes").textContent = "Error loading metrics";
-    return;
-  }
+    // ------------------ TEAM ------------------
+    function renderTeam(){
+      if (!teamData) {
+        document.getElementById("teamNotes").textContent = "Error loading metrics";
+        return;
+      }
 
-  const k = teamData.kpis || {};
+      const k = teamData.kpis || {};
 
-  // Top rep by revenue (from kpis or computed from reps)
-  let topRepRev = k.top_rep_revenue;
-  if (!topRepRev && Array.isArray(teamData.reps)) {
-    topRepRev = teamData.reps.reduce((best, r) =>
-      (r && isFinite(r.revenue) && (!best || r.revenue > best.revenue)) ? r : best, null);
-    if (topRepRev) topRepRev = { name: topRepRev.name || '—', revenue: Number(topRepRev.revenue || 0) };
-  }
-  document.getElementById("tTopRepRev").textContent =
-    topRepRev ? `${topRepRev.name} (${fmtCurrency(topRepRev.revenue)})` : '—';
+      // Top rep by revenue
+      let topRepRev = k.top_rep_revenue;
+      if (!topRepRev && Array.isArray(teamData.reps)) {
+        topRepRev = teamData.reps.reduce((best, r) =>
+          (r && isFinite(r.revenue) && (!best || r.revenue > best.revenue)) ? r : best, null);
+        if (topRepRev) topRepRev = { name: topRepRev.name || '—', revenue: Number(topRepRev.revenue || 0) };
+      }
+      document.getElementById("tTopRepRev").textContent =
+        topRepRev ? `${topRepRev.name} (${fmtCurrency(topRepRev.revenue)})` : '—';
 
-  // Highest ATV (from kpis or computed from reps)
-  let highestATV = k.highest_atv;
-  if (!highestATV && Array.isArray(teamData.reps)) {
-    const bestATV = teamData.reps.reduce((best, r) =>
-      (r && isFinite(r.avg_ticket) && (!best || r.avg_ticket > best.avg_ticket)) ? r : best, null);
-    if (bestATV) highestATV = { name: bestATV.name || '—', atv: Number(bestATV.avg_ticket || 0) };
-  }
-  const atvText = highestATV && isFinite(highestATV.atv) ? highestATV.atv.toFixed(2) : '—';
-  document.getElementById("tHighestATV").textContent =
-    highestATV ? `${highestATV.name} (${atvText})` : '—';
+      // Highest ATV
+      let highestATV = k.highest_atv;
+      if (!highestATV && Array.isArray(teamData.reps)) {
+        const bestATV = teamData.reps.reduce((best, r) =>
+          (r && isFinite(r.avg_ticket) && (!best || r.avg_ticket > best.avg_ticket)) ? r : best, null);
+        if (bestATV) highestATV = { name: bestATV.name || '—', atv: Number(bestATV.avg_ticket || 0) };
+      }
+      const atvText = highestATV && isFinite(highestATV.atv) ? highestATV.atv.toFixed(2) : '—';
+      document.getElementById("tHighestATV").textContent =
+        highestATV ? `${highestATV.name} (${atvText})` : '—';
 
-  // Table
-  const tb = document.querySelector("#tblTeam tbody");
-  if (!tb) return;
-  tb.innerHTML = "";
+      // Table (Name, Revenue, Orders, ATV)
+      const tb = document.querySelector("#tblTeam tbody");
+      if (!tb) return;
+      tb.innerHTML = "";
 
-  // If you changed to the 4-column table (Name, Revenue, Orders, ATV):
-  if (document.querySelector("#tblTeam thead th:nth-child(4)")?.textContent === "ATV") {
-    (teamData.reps || []).forEach(r => {
-      const tr = document.createElement("tr");
-      const orders = isFinite(r.orders) ? r.orders : (isFinite(r.units) ? r.units : null); // fallback
-      const atv    = isFinite(r.avg_ticket) ? r.avg_ticket.toFixed(2) : '—';
-      tr.innerHTML = `<td>${r.name || '—'}</td>` +
-                     `<td>${fmtCurrency(r.revenue || 0)}</td>` +
-                     `<td>${orders != null ? fmtInt(orders) : '—'}</td>` +
-                     `<td>${atv}</td>`;
-      tb.appendChild(tr);
-    });
-  } else {
-    // keep your existing 7-column table behavior
-    (teamData.reps || []).forEach(r => {
-      const tr = document.createElement("tr");
-      tr.innerHTML =
-        `<td>${r.name || '—'}</td>` +
-        `<td>${fmtCurrency(r.revenue || 0)}</td>` +
-        `<td>${fmtInt(r.units || 0)}</td>` +
-        `<td>${isFinite(r.avg_ticket) ? r.avg_ticket.toFixed(2) : '—'}</td>` +
-        `<td>${isFinite(r.share_sales_pct) ? (r.share_sales_pct*100).toFixed(1)+'%' : '—'}</td>` +
-        `<td>${isFinite(r.hours) ? r.hours.toFixed(1) : '—'}</td>` +
-        `<td>${isFinite(r.twe) ? r.twe.toFixed(3) : '—'}</td>`;
-      tb.appendChild(tr);
-    });
-  }
-
-  document.getElementById("teamNotes").textContent =
-    (teamData.notes || []).map(x => '- ' + x).join("\n");
-}
-</script>
-
-      if(!teamData){ document.getElementById("teamNotes").textContent = "Error loading metrics"; return; }
-      document.getElementById("tTotalRev").textContent = fmtCurrency(teamData.kpis.total_revenue || 0);
-      document.getElementById("tTotalUnits").textContent = fmtInt(teamData.kpis.total_units || 0);
-      const trr = teamData.kpis.top_rep_revenue || {name:'—', revenue:0};
-      const trt = teamData.kpis.top_rep_twe || {name:'—', twe:0};
-      document.getElementById("tTopRepRev").textContent = `${trr.name} (${fmtCurrency(trr.revenue)})`;
-      document.getElementById("tTopRepTWE").textContent = `${trt.name} (${isFinite(trt.twe) ? trt.twe.toFixed(3) : '—'})`;
-      const tb = document.querySelector("#tblTeam tbody"); tb.innerHTML = "";
       (teamData.reps || []).forEach(r => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${r.name}</td><td>${fmtCurrency(r.revenue)}</td><td>${fmtInt(r.units)}</td><td>${isFinite(r.avg_ticket) ? r.avg_ticket.toFixed(2) : '—'}</td><td>${fmtPct(r.share_sales_pct)}</td><td>${isFinite(r.hours) ? r.hours.toFixed(1) : '—'}</td><td>${isFinite(r.twe) ? r.twe.toFixed(3) : '—'}</td>`;
+        const orders = isFinite(r.orders) ? r.orders : (isFinite(r.units) ? r.units : null);
+        const atv    = isFinite(r.avg_ticket) ? r.avg_ticket.toFixed(2) : '—';
+        tr.innerHTML =
+          `<td>${r.name || '—'}</td>` +
+          `<td>${fmtCurrency(r.revenue || 0)}</td>` +
+          `<td>${orders != null ? fmtInt(orders) : '—'}</td>` +
+          `<td>${atv}</td>`;
         tb.appendChild(tr);
       });
-      document.getElementById("teamNotes").textContent = (teamData.notes || []).map(x => '- ' + x).join("\n");
+
+      document.getElementById("teamNotes").textContent =
+        (teamData.notes || []).map(x => '- ' + x).join("\n");
     }
 
-    // Chart helpers
-    // Build data rows for Top 5 Profit chart. Returns top 5 SKUs by profit
+    // ------------------ CHARTS ------------------
     function getTop5ProfitChartRows(){
       if(!salesData || !Array.isArray(salesData.sku_top_profit)) return [];
       return salesData.sku_top_profit
@@ -483,9 +422,8 @@ function renderTeam(){
         .map(r => ({ label: `${r.product}`.slice(0,60), Profit: Number(r.profit || 0) }));
     }
     const currencyFmt = n => isFinite(n) ? (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0}) : "—";
-    // Build horizontal bar chart for Top 5 SKUs in Profit. Only renders Profit bars
     function buildTopProfitChart(data, mountId){
-      const { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } = Recharts;
+      const { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } = Recharts;
       const root = document.getElementById(mountId);
       if(!root) return;
       const e = React.createElement;
